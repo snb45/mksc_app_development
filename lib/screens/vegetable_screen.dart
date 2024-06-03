@@ -211,8 +211,11 @@ class _VegetableScreenState extends State<VegetableScreen> {
                             print("token ..........................${token}");
                           }
                           print("here i am ..........................${token}");
-                          final resp = await _service.postData(token!, "",
-                              enteredData, selectedname.toLowerCase());
+                          final resp = await _service.postData(
+                              token!,
+                              widget.title,
+                              enteredData,
+                              selectedname.toLowerCase());
                           if (resp) {
                             Navigator.of(context).pop();
                             Fluttertoast.showToast(

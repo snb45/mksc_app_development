@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:flutter_html/flutter_html.dart';
+import '../modals/menu_modal.dart';
 import '../service/services.dart';
 
 class MenuTab1 extends StatefulWidget {
@@ -12,41 +13,37 @@ class MenuTab1 extends StatefulWidget {
 }
 
 class _MenuTab1State extends State<MenuTab1> {
-  late String? _menuID;
   final service = Services();
-  late Map<String, dynamic> data = {};
-  bool isLoading = true;
-  String selectedDish = "Soup dish";
+  String? selectedDish;
   int selectedPortion = 1;
-
-  final List<String> dishNames = [
-    "Soup dish",
-    "Chick chok dish",
-    "Bilian dish"
-  ];
+  List<dynamic> dishNames = [];
 
   @override
   void initState() {
     super.initState();
-    _menuID = widget.menuId;
-    getMenuDetails_();
+    final menuModel = Provider.of<MenuModel>(context, listen: false);
+    getMenuDetails_(menuModel.menuID);
   }
 
-  Future<void> getMenuDetails_() async {
-    final menus = await service.getMenuDetails(_menuID);
-    print("data page Two....................${_menuID}");
+  Future<void> getMenuDetails_(String? menuID) async {
+    final menuModel = Provider.of<MenuModel>(context, listen: false);
+    final menus = await service.getMenuDetails(menuID);
+    menuModel.setData(menus);
+    menuModel.setLoading(false);
     setState(() {
-      data = menus;
-      isLoading = false;
+      dishNames = menus["otherDishesFromSelectedMenu"];
+      if (dishNames.isNotEmpty && selectedDish == null) {
+        selectedDish = dishNames[0]["id"].toString();
+      }
     });
   }
 
-  Future<void> getVideoURL_() async {
-    final menus = await service.getVideos(_menuID);
-    print(menus);
+  Future<void> getUpdatedMenuDetails_(String selectedID) async {
+    final menuModel = Provider.of<MenuModel>(context, listen: false);
+    final menus = await service.getMenuByDishes(selectedID);
+    menuModel.setData(menus);
     setState(() {
-      data = menus;
-      isLoading = false;
+      dishNames = menus["otherDishesFromSelectedMenu"];
     });
   }
 
@@ -58,11 +55,12 @@ class _MenuTab1State extends State<MenuTab1> {
 
   @override
   Widget build(BuildContext context) {
+    final menuModel = Provider.of<MenuModel>(context);
+    final data = menuModel.data;
     final portions = data["portions"] as List<dynamic>? ?? [];
     final dish = data["dish"] as Map<String, dynamic>? ?? {};
-    final imageourl = data["image"];
-    print(imageourl);
-    print(data);
+    final imageourl = data["image"] ?? '';
+    final isLoading = menuModel.isLoading;
 
     return Scaffold(
       body: SingleChildScrollView(
@@ -160,35 +158,42 @@ class _MenuTab1State extends State<MenuTab1> {
               border: Border.all(color: Colors.blue, width: 0.5),
             ),
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<String>(
-                style: const TextStyle(
-                    color: Colors.grey, fontWeight: FontWeight.bold),
-                hint: const Text(
-                  "Change dishes",
-                  style: TextStyle(
-                      color: Colors.grey, fontWeight: FontWeight.bold),
-                ),
-                value: selectedDish,
-                onChanged: (String? newValue) {
-                  setState(() {
-                    selectedDish = newValue!;
-                  });
-                },
-                items: dishNames.map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(
-                      value,
+            child: dishNames.isNotEmpty
+                ? DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
                       style: const TextStyle(
-                          fontWeight: FontWeight.w300, color: Colors.blue),
+                          color: Colors.grey, fontWeight: FontWeight.bold),
+                      hint: const Text(
+                        "Change dishes",
+                        style: TextStyle(
+                            color: Colors.grey, fontWeight: FontWeight.bold),
+                      ),
+                      value: selectedDish,
+                      onChanged: (String? newValue) {
+                        if (newValue != null) {
+                          setState(() {
+                            selectedDish = newValue;
+                          });
+                          getUpdatedMenuDetails_(selectedDish!);
+                        }
+                      },
+                      items: dishNames
+                          .map<DropdownMenuItem<String>>((dynamic value) {
+                        return DropdownMenuItem<String>(
+                          value: value["id"].toString(),
+                          child: Text(
+                            value["dishName"],
+                            style: const TextStyle(
+                                fontWeight: FontWeight.w500,
+                                color: Colors.grey),
+                          ),
+                        );
+                      }).toList(),
+                      dropdownColor: Colors.white,
+                      isExpanded: true,
                     ),
-                  );
-                }).toList(),
-                dropdownColor: Colors.white,
-                isExpanded: true,
-              ),
-            ),
+                  )
+                : null,
           ),
         ),
         Padding(
@@ -214,9 +219,11 @@ class _MenuTab1State extends State<MenuTab1> {
                     padding: EdgeInsets.only(right: 8.0),
                     child: Text(
                       "Number of pax",
-                      style: TextStyle(fontWeight: FontWeight.w700,
-                    fontSize: 15,
-                    color: Colors.grey,),
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 15,
+                        color: Colors.grey,
+                      ),
                     ),
                   ),
                   IconButton(
@@ -257,7 +264,7 @@ class _MenuTab1State extends State<MenuTab1> {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.only(left:8.0,right: 8),
+          padding: const EdgeInsets.only(left: 8.0, right: 8),
           child: Table(
             border: TableBorder.all(
               color: Colors.blue,
@@ -316,22 +323,24 @@ class _MenuTab1State extends State<MenuTab1> {
                     ),
                     TableCell(
                       child: Center(
-                        child: portion['multiply']== '1' ?  Text(
-                          (int.parse(portion['unitNeeded']
-                                      .replaceAll(',', '')) *
-                                  selectedPortion)
-                              .toString(),
-                          style: const TextStyle(
-                            color: Colors.grey,
-                          ),
-                        ):Text(
-                          (int.parse(portion['unitNeeded']
-                                      .replaceAll(',', '')))
-                              .toString(),
-                          style: const TextStyle(
-                            color: Colors.grey,
-                          ),
-                        ),
+                        child: portion['multiply'] == '1'
+                            ? Text(
+                                (int.parse(portion['unitNeeded']
+                                            .replaceAll(',', '')) *
+                                        selectedPortion)
+                                    .toString(),
+                                style: const TextStyle(
+                                  color: Colors.grey,
+                                ),
+                              )
+                            : Text(
+                                (int.parse(portion['unitNeeded']
+                                        .replaceAll(',', '')))
+                                    .toString(),
+                                style: const TextStyle(
+                                  color: Colors.grey,
+                                ),
+                              ),
                       ),
                     ),
                   ],
@@ -367,17 +376,7 @@ class _MenuTab1State extends State<MenuTab1> {
               ),
             ),
           ),
-          const Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Text(
-              '',
-              style: TextStyle(
-                  fontSize: 16.0,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.grey),
-            ),
-          ),
-        ]
+        ],
       ],
     );
   }

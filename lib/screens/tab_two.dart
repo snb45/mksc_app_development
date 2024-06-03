@@ -1,8 +1,8 @@
-// ignore_for_file: unused_local_variable
-
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:flutter_html/flutter_html.dart';
+import '../modals/menu_modal.dart';
 import '../service/services.dart';
 
 class SecondTab extends StatefulWidget {
@@ -14,45 +14,32 @@ class SecondTab extends StatefulWidget {
 }
 
 class _SecondTabState extends State<SecondTab> {
-  late String? _menuID;
   final service = Services();
-  late Map<String, dynamic> data = {};
-  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _menuID = widget.menuId;
-    getMenuDetails_();
+    final menuModel = Provider.of<MenuModel>(context, listen: false);
+    // getMenuDetails_(menuModel.menuID);
   }
 
-  Future<void> getMenuDetails_() async {
-    final menus = await service.getMenuDetails(_menuID);
-    setState(() {
-      data = menus;
-      isLoading = false;
-    });
-  }
-
-  Future<void> getVideoURL_() async {
-    final menus = await service.getVideos(_menuID);
-    print("Videos page ....................");
-    print(menus);
-    setState(() {
-      data = menus;
-      isLoading = false;
-    });
-  }
+  // Future<void> getMenuDetails_(String? menuID) async {
+  //   final menuModel = Provider.of<MenuModel>(context, listen: false);
+  //   final menus = await service.getMenuDetails(menuID);
+  //   menuModel.setData(menus);
+  //   menuModel.setLoading(false);
+  // }
 
   @override
   Widget build(BuildContext context) {
-    final portions = data["portions"] as List<dynamic>? ?? [];
+    final menuModel = Provider.of<MenuModel>(context);
+    final data = menuModel.data;
     final dish = data["dish"] as Map<String, dynamic>? ?? {};
+    final isLoading = menuModel.isLoading;
 
     return Scaffold(
       body: SingleChildScrollView(
-        child:
-            isLoading ? _buildShimmerLoading() : _buildContent(portions, dish),
+        child: isLoading ? _buildShimmerLoading() : _buildContent(dish),
       ),
     );
   }
@@ -76,17 +63,18 @@ class _SecondTabState extends State<SecondTab> {
                 const SizedBox(height: 10),
                 Table(
                   children: List.generate(
-                      5,
-                      (index) => TableRow(children: [
-                            Container(
-                              height: 20,
-                              color: Colors.grey,
-                            ),
-                            Container(
-                              height: 20,
-                              color: Colors.grey,
-                            ),
-                          ])),
+                    5,
+                    (index) => TableRow(children: [
+                      Container(
+                        height: 20,
+                        color: Colors.grey,
+                      ),
+                      Container(
+                        height: 20,
+                        color: Colors.grey,
+                      ),
+                    ]),
+                  ),
                 ),
               ],
             ),
@@ -100,15 +88,16 @@ class _SecondTabState extends State<SecondTab> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: List.generate(
-                  3,
-                  (index) => Padding(
-                        padding: const EdgeInsets.only(bottom: 10.0),
-                        child: Container(
-                          width: double.infinity,
-                          height: 200,
-                          color: Colors.grey,
-                        ),
-                      )),
+                3,
+                (index) => Padding(
+                  padding: const EdgeInsets.only(bottom: 10.0),
+                  child: Container(
+                    width: double.infinity,
+                    height: 200,
+                    color: Colors.grey,
+                  ),
+                ),
+              ),
             ),
           ),
         ),
@@ -116,7 +105,7 @@ class _SecondTabState extends State<SecondTab> {
     );
   }
 
-  Widget _buildContent(List<dynamic> portions, Map<String, dynamic> dish) {
+  Widget _buildContent(Map<String, dynamic> dish) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,

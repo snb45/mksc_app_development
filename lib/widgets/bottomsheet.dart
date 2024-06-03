@@ -85,7 +85,7 @@ class _CampSelectionBottomSheetState extends State<CampSelectionBottomSheet> {
         ),
       ),
       constraints: const BoxConstraints(
-        minHeight: 200,
+        minHeight: 300,
       ),
       child: Padding(
         padding: const EdgeInsets.only(top: 28.0),
@@ -389,22 +389,26 @@ class _CampSelectionBottomSheetState extends State<CampSelectionBottomSheet> {
                         return Text('Error: ${snapshot.error}');
                       } else {
                         final camps = snapshot.data!;
-                        return ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: camps.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            final campName = camps[index]['camp'];
-                            return ListTile(
-                              title: Text(campName),
-                              onTap: () {
-                                setState(() {
-                                  _selectedCamp = campName;
-                                  _isExpanded = false;
-                                });
-                              },
-                              selected: _selectedCamp == campName,
-                            );
-                          },
+                        return Container(
+                          height: 200,
+                          child: ListView.builder(
+                            scrollDirection: Axis.vertical,
+                            shrinkWrap: true,
+                            itemCount: camps.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              final campName = camps[index]['camp'];
+                              return ListTile(
+                                title: Text(campName),
+                                onTap: () {
+                                  setState(() {
+                                    _selectedCamp = campName;
+                                    _isExpanded = false;
+                                  });
+                                },
+                                selected: _selectedCamp == campName,
+                              );
+                            },
+                          ),
                         );
                       }
                     },
@@ -438,6 +442,8 @@ class _CampSelectionBottomSheetState extends State<CampSelectionBottomSheet> {
                                       ? "Lunch"
                                       : campName == "3"
                                           ? "Dinner"
+                                          :campName == "4"
+                                          ? "Picnic"
                                           : ""),
                               onTap: () {
                                 setState(() {
@@ -448,7 +454,9 @@ class _CampSelectionBottomSheetState extends State<CampSelectionBottomSheet> {
                                           ? "Lunch"
                                           : campName == "3"
                                               ? "Dinner"
-                                              : "";
+                                              : campName == "4"
+                                          ? "Picnic"
+                                          :  "";
                                   _typeisExpanded = false;
                                 });
                               },
@@ -474,21 +482,25 @@ class _CampSelectionBottomSheetState extends State<CampSelectionBottomSheet> {
                         ),
                       );
                     } else {
-                      return ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: daysOfWeek.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          final dayName = daysOfWeek[index];
-                          return ListTile(
-                            title: Text(dayName),
-                            onTap: () {
-                              setState(() {
-                                _selectedDay = dayName;
-                                _dayExpanded = false;
-                              });
-                            },
-                          );
-                        },
+                      return Container(
+                         height: 200,
+                        child: ListView.builder(
+                          scrollDirection: Axis.vertical,
+                          shrinkWrap: true,
+                          itemCount: daysOfWeek.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            final dayName = daysOfWeek[index];
+                            return ListTile(
+                              title: Text(dayName),
+                              onTap: () {
+                                setState(() {
+                                  _selectedDay = dayName;
+                                  _dayExpanded = false;
+                                });
+                              },
+                            );
+                          },
+                        ),
                       );
                     }
                   },
@@ -511,6 +523,7 @@ class _CampSelectionBottomSheetState extends State<CampSelectionBottomSheet> {
                     } else {
                       final camps = snapshot.data!;
                       return ListView.builder(
+                        
                         shrinkWrap: true,
                         itemCount: camps.length,
                         itemBuilder: (BuildContext context, int index) {

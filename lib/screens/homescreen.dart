@@ -55,6 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   top: 40,
                   left: 10,
                   child: CircleAvatar(
+                    
                     backgroundColor: Color.fromRGBO(218, 242, 250, 1),
                     radius: 28,
                     child: ClipOval(
@@ -115,20 +116,20 @@ class _HomeScreenState extends State<HomeScreen> {
                                   Padding(
                                     padding: EdgeInsets.all(8.0),
                                     child: Text(
-                                      "Chickenhall",
+                                      "View full",
                                       style: TextStyle(
                                           color: Colors.blue,
                                           fontSize: 15,
                                           fontWeight: FontWeight.w400),
                                     ),
                                   ),
-                                  Icon(
-                                    Ionicons.arrow_up_circle_sharp,
-                                    color: Colors.green,
-                                    size: 20,
-                                  ),
+                                  // Icon(
+                                  //   Ionicons.paper_plane,
+                                  //   color: Colors.green,
+                                  //   size: 20,
+                                  // ),
                                   Text(
-                                    "200+",
+                                    "Report",
                                     style: TextStyle(
                                         color: Colors.green,
                                         fontSize: 15,
@@ -153,7 +154,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     );
                                   },
                                   child: const Text(
-                                    "View data",
+                                    "Download",
                                     style: TextStyle(
                                         color: Colors.white, fontSize: 14),
                                   ),

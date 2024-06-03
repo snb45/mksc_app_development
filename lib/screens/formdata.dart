@@ -152,32 +152,68 @@ class _AddDataState extends State<AddData> {
 
   Future<void> checkTokenExpiry() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
-    String? savedTimeString = prefs.getString('currentTime');
+
+    String? token = widget.title == "Vegetable"
+        ? prefs.getString('vegetabletoken')
+        : prefs.getString('token');
+
+    String? savedTimeString = widget.title == "Vegetable"
+        ? prefs.getString('vegetablecurrentTime')
+        : prefs.getString('currentTime');
+
     print("token check here...................................");
     print(token);
     print(savedTimeString);
-    if (token != null &&
-        savedTimeString != null &&
-        savedTimeString.isNotEmpty) {
+
+    if (savedTimeString == null || savedTimeString.isEmpty) {
+      print("in i am now =============================>");
+      DateTime defaultSavedTime = DateTime.now().subtract(Duration(hours: 4));
+      savedTimeString = defaultSavedTime.toIso8601String();
+      await prefs.setString('currentTime', savedTimeString);
+      print(
+          "Saved Time String set to default 4 hours earlier: $savedTimeString");
+    }
+
+    if (token != null && token.isNotEmpty) {
       print("am in now ...............................");
-      DateTime savedTime = DateTime.parse(savedTimeString);
-      DateTime currentTime = DateTime.now();
-      if (currentTime.difference(savedTime).inHours > 3) {
-        // Clear token and time if expired
-        await prefs.setString('token', '');
-        await prefs.setString('currentTime', '');
+
+      try {
+        DateTime savedTime = DateTime.parse(savedTimeString);
+        DateTime currentTime = DateTime.now();
+        print("Timesaved Time ...................");
+        print(savedTime);
+        // Check if the difference between current time and saved time is more than 3 hours
+        if (currentTime.difference(savedTime).inHours > 3) {
+          print("time excuted ...................");
+          print(savedTime);
+          // Clear token and time if expired
+          if (widget.title == "Vegetable") {
+            await prefs.setString('vegetabletoken', '');
+            await prefs.setString('vegetablecurrentTime', '');
+          } else {
+            await prefs.setString('token', '');
+            await prefs.setString('currentTime', '');
+          }
+
+          setState(() {
+            tokenExpired = true;
+            _currentStep = 0;
+          });
+        } else {
+          setState(() {
+            tokenExpired = false;
+            _currentStep = 1;
+          });
+        }
+      } catch (e) {
+        print("Error parsing saved time: $e");
         setState(() {
           tokenExpired = true;
           _currentStep = 0;
         });
-      } else {
-        setState(() {
-          tokenExpired = false;
-          _currentStep = 1;
-        });
       }
     } else {
+      print("Token is null or empty.");
       setState(() {
         tokenExpired = true;
         _currentStep = 0;

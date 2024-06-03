@@ -28,6 +28,8 @@ class Services {
   final getVideoURL = "http://mkscportal.co.tz/panel/api/v1/dish_video";
   final vegetableUrl = "https://mkscportal.co.tz/api/v1/vegetable-list";
   final vegetabledataurl = "http://mkscportal.co.tz/api/v1/vegetable";
+  final savevegetableUrl = "https://mkscportal.co.tz/api/v1/vegetable";
+  final getbydishesurl = "http://mkscportal.co.tz/panel/api/v1/dish_details";
 
   Future<AuthResult> authenticateUser(BuildContext context, String category,
       String password, int countNo, String modifiedselectedCategory) async {
@@ -94,7 +96,11 @@ class Services {
     print(payload);
     try {
       final response = await http.post(
-        Uri.parse(chickenUrl),
+        Uri.parse(name == "Chicken House"
+            ? chickenUrl
+            : name == "Vegetable"
+                ? savevegetableUrl
+                : ""),
         body: payload,
         headers: headers,
       );
@@ -228,6 +234,16 @@ class Services {
       throw Exception('Failed to load MenuDetails list');
     }
   }
+   getMenuByDishes(id) async {
+    final response = await http.get(Uri.parse('$getbydishesurl/$id'));
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = jsonDecode(response.body);
+      print(data);
+      return data;
+    } else {
+      throw Exception('Failed to load MenuDetails list');
+    }
+  }
 
   getVideos(id) async {
     final response = await http.get(Uri.parse('$getVideoURL/$id'));
@@ -262,7 +278,11 @@ class Services {
       'Content-Type': 'application/json',
     };
     final payload = json.encode({
-      'email': "vegetable@vegetable.com",
+      'email': category == "Vegetable"
+          ? "vegetable@vegetable.com"
+          : category == "Chicken House"
+              ? "laundry@laundry.com"
+              : '',
       'password': password,
     });
     print("PAYLOAD.....................");
@@ -281,7 +301,7 @@ class Services {
         String formattedTime = DateTime.now().toIso8601String();
         if (category == "Vegetable") {
           await prefs.setString('vegetabletoken', responseData['token']);
-          await prefs.setString('currentTime', formattedTime);
+          await prefs.setString('vegetablecurrentTime', formattedTime);
         } else {
           await prefs.setString('token', responseData['token']);
           await prefs.setString('currentTime', formattedTime);
