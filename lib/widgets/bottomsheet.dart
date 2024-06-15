@@ -85,7 +85,7 @@ class _CampSelectionBottomSheetState extends State<CampSelectionBottomSheet> {
         ),
       ),
       constraints: const BoxConstraints(
-        minHeight: 300,
+        minHeight: 250,
       ),
       child: Padding(
         padding: const EdgeInsets.only(top: 28.0),

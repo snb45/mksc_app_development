@@ -1,8 +1,8 @@
-// import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 
 class MenuModel extends ChangeNotifier {
   String? _menuID;
+  String? _videourl;
   Map<String, dynamic> _data = {};
   bool _isLoading = true;
   List<dynamic> _videos = [];
@@ -10,6 +10,7 @@ class MenuModel extends ChangeNotifier {
   String? get menuID => _menuID;
   Map<String, dynamic> get data => _data;
   bool get isLoading => _isLoading;
+  String? get videourl => _videourl;
   List<dynamic> get videos => _videos;
 
   void setMenuID(String? menuID) {
@@ -29,6 +30,10 @@ class MenuModel extends ChangeNotifier {
 
   void setVideos(List<dynamic> videos) {
     _videos = videos;
+    notifyListeners();
+  }
+  void setVideosUrl(String videourl) {
+    _videourl = videourl;
     notifyListeners();
   }
 }

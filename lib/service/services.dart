@@ -20,13 +20,12 @@ class Services {
   final alldataurl = 'http://mkscportal.co.tz/api/v1/chickenHouse/all';
   final getchickendata = 'http://mkscportal.co.tz/api/v1/chickenHouse/';
   final getcampurl = 'http://mkscportal.co.tz/panel/api/v1/camps';
-  final getcamptypeurl =
-      'http://mkscportal.co.tz/panel/api/v1/menu_type_by_camp_name/';
-  final getMenurl =
-      'http://mkscportal.co.tz/panel/api/v1/menu_by_day_type_camp';
+  final getcamptypeurl = 'http://mkscportal.co.tz/panel/api/v1/menu_type_by_camp_name/';
+  final getMenurl = 'http://mkscportal.co.tz/panel/api/v1/menu_by_day_type_camp';
   final getMenutetails = "http://mkscportal.co.tz/panel/api/v1/menu_details";
   final getVideoURL = "http://mkscportal.co.tz/panel/api/v1/dish_video";
-  final vegetableUrl = "https://mkscportal.co.tz/api/v1/vegetable-list";
+  final vegetableUrl = "https://mkscportal.co.tz/panel/api/v1/vegetable-list";
+  final availablevegetableUrl = "http://mkscportal.co.tz/api/v1/vegetable-today";
   final vegetabledataurl = "http://mkscportal.co.tz/api/v1/vegetable";
   final savevegetableUrl = "https://mkscportal.co.tz/api/v1/vegetable";
   final getbydishesurl = "http://mkscportal.co.tz/panel/api/v1/dish_details";
@@ -100,6 +99,35 @@ class Services {
             ? chickenUrl
             : name == "Vegetable"
                 ? savevegetableUrl
+                : ""),
+        body: payload,
+        headers: headers,
+      );
+      final responseData = json.decode(response.body);
+      print(responseData);
+      return true;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  Future<bool> editVegetableData(String token, String name, int countnum,
+      String modifiedselectedCategory, int itemId) async {
+    final headers = {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+    };
+    final payload = json.encode({
+      'item': modifiedselectedCategory,
+      'token': token,
+      'number': countnum,
+    });
+    try {
+      final response = await http.patch(
+        Uri.parse(name == "Chicken House"
+            ? chickenUrl
+            : name == "Vegetable"
+                ? '$savevegetableUrl/$itemId'
                 : ""),
         body: payload,
         headers: headers,
@@ -234,7 +262,8 @@ class Services {
       throw Exception('Failed to load MenuDetails list');
     }
   }
-   getMenuByDishes(id) async {
+
+  getMenuByDishes(id) async {
     final response = await http.get(Uri.parse('$getbydishesurl/$id'));
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = jsonDecode(response.body);
@@ -263,6 +292,18 @@ class Services {
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = jsonDecode(response.body);
       // print(data['data']);
+      return data;
+    } else {
+      throw Exception('Failed to load video');
+    }
+  }
+
+  getAvailableVegetableList() async {
+    final response = await http.get(Uri.parse('$availablevegetableUrl'));
+    print(response.statusCode);
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = jsonDecode(response.body);
+      print("data available ...............  ${data['data']}");
       return data;
     } else {
       throw Exception('Failed to load video');

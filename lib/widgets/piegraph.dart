@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:mksc_mobile/service/services.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:intl/intl.dart';
 
 import '../modals/chartdatamodal.dart';
 import '../modals/piechartdatamodal.dart';
@@ -34,15 +36,18 @@ class _PieChartState extends State<PieChart> {
       final jsonData = await _service.getVegetableData('vegetable');
       setState(() {
         dailyData = (jsonData['daily'] as List)
-            .map((data) => PieChartData(data['item'], double.parse(data['number'])))
+            .map((data) =>
+                PieChartData(data['item'], double.parse(data['number'])))
             .toList();
 
         weeklyData = (jsonData['weekly'] as List)
-            .map((data) => PieChartData(data['item'], double.parse(data['number'])))
+            .map((data) =>
+                PieChartData(data['item'], double.parse(data['number'])))
             .toList();
 
         monthlyData = (jsonData['monthly'] as List)
-            .map((data) => PieChartData(data['item'], double.parse(data['number'])))
+            .map((data) =>
+                PieChartData(data['item'], double.parse(data['number'])))
             .toList();
         isLoading = false;
       });
@@ -82,11 +87,21 @@ class _PieChartState extends State<PieChart> {
             )
           else ...[
             if (dailyData.isNotEmpty)
-              VegetablePieChart(data: dailyData, title: 'Daily Consumption'),
+              VegetablePieChart(
+                data: dailyData,
+                title: '${DateFormat('d MMMM yyyy').format(DateTime.now())}',
+              ),
             if (weeklyData.isNotEmpty)
-              VegetablePieChart(data: weeklyData, title: 'Weekly Consumption'),
+              VegetablePieChart(
+                data: weeklyData,
+                title: _getWeeklyTitle(),
+              ),
             if (monthlyData.isNotEmpty)
-              VegetablePieChart(data: monthlyData, title: 'Monthly Consumption'),
+              VegetablePieChart(
+                data: monthlyData,
+                title:
+                    '${DateFormat('MMMM').format(DateTime.now())} Collections',
+              ),
           ],
         ],
       ),
@@ -98,10 +113,22 @@ class _PieChartState extends State<PieChart> {
       elevation: 0.5,
       margin: const EdgeInsets.all(10),
       child: Container(
-        height: 200,
-        color: Colors.white,
+        height: 230,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius:BorderRadius.circular(10)
+        ),
+        
       ),
     );
+  }
+
+  String _getWeeklyTitle() {
+    DateTime now = DateTime.now();
+    int weekNumber =
+        ((now.difference(DateTime(now.year, 1, 1)).inDays) / 7).ceil();
+
+    return 'Week #$weekNumber Collections';
   }
 }
 
@@ -120,7 +147,9 @@ class VegetablePieChart extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Text(title, style: const TextStyle(fontSize: 20, fontWeight:FontWeight.w200)),
+            child: Text(title,
+                style:
+                    const TextStyle(fontSize: 20, fontWeight: FontWeight.w200)),
           ),
           SfCircularChart(
             legend: const Legend(isVisible: true),

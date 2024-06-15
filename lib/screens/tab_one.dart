@@ -313,30 +313,38 @@ class _MenuTab1State extends State<MenuTab1> {
                   children: [
                     TableCell(
                       child: Center(
-                        child: Text(
-                          portion['productName'],
-                          style: const TextStyle(
-                            color: Colors.grey,
+                        child: Column(
+                          children: [
+                            Text(
+                                 portion['productName']
+                                ,
+                            style: const TextStyle(
+                              color: Colors.grey,
+                            ),
                           ),
-                        ),
+                        if(portion['extraDetails'] != null)...[
+                          Text(
+                              '(${portion['extraDetails']})',
+                              style: const TextStyle(
+                                color: Colors.orange,
+                              ),
+                            )
+                        ] 
+                          ],
+                        )
                       ),
                     ),
                     TableCell(
                       child: Center(
                         child: portion['multiply'] == '1'
                             ? Text(
-                                (int.parse(portion['unitNeeded']
-                                            .replaceAll(',', '')) *
-                                        selectedPortion)
-                                    .toString(),
+                                '${(double.parse(portion['unitNeeded'].replaceAll(',', '')) * selectedPortion).toString()} ${portion['unit'].replaceAll(',', '')}',
                                 style: const TextStyle(
                                   color: Colors.grey,
                                 ),
                               )
                             : Text(
-                                (int.parse(portion['unitNeeded']
-                                        .replaceAll(',', '')))
-                                    .toString(),
+                                '${(int.parse(portion['unitNeeded'].replaceAll(',', ''))).toString()} ${portion['unit'].replaceAll(',', '')}',
                                 style: const TextStyle(
                                   color: Colors.grey,
                                 ),

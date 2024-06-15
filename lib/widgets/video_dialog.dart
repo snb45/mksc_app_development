@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:chewie/chewie.dart';
 
+import '../modals/menu_modal.dart';
 import '../service/services.dart';
 
 class VideoDialog extends StatefulWidget {
-  final VideoPlayerController controller;
-  String menuId;
-  VideoDialog({Key? key, required this.controller, required this.menuId})
-      : super(key: key);
+  final String menuId;
+
+  VideoDialog({
+    Key? key,
+    required this.menuId,
+  }) : super(key: key);
 
   @override
   _VideoDialogState createState() => _VideoDialogState();
@@ -16,102 +21,71 @@ class VideoDialog extends StatefulWidget {
 
 class _VideoDialogState extends State<VideoDialog> {
   late bool _isLoading;
-  late String? _menuID;
-  VideoPlayerController? _controller;
+  late ChewieController _chewieController;
   final service = Services();
-  String? videoURL;
 
   @override
   void initState() {
     super.initState();
     _isLoading = true;
-    _menuID = widget.menuId;
-    getVideoURL_();
+    getMenuDetails_();
   }
 
-  Future<void> getVideoURL_() async {
-    print("function called......................$_menuID");
-    final menus = await service.getVideos(4);
-    setState(() {
-      videoURL = menus;
-      if (videoURL != null) {
-        _controller = VideoPlayerController.network(videoURL!)
-          ..initialize().then((_) {
-            _isLoading = false;
-            setState(() {
-            });
-          });
-      } else {
+  Future<void> getMenuDetails_() async {
+    final menuModel = Provider.of<MenuModel>(context, listen: false);
+    menuModel.setLoading(false);
+    updateVideoUrl(menuModel.data['video']);
+  }
+
+  void updateVideoUrl(String? newUrl) {
+    if (newUrl != null) {
+      setState(() {
         _isLoading = false;
-      }
-    });
-    print("Videos page ....................");
-    print(_controller
-    );
+        _chewieController = ChewieController(
+          videoPlayerController: VideoPlayerController.network(newUrl),
+          autoInitialize: true,
+          autoPlay: true,
+          looping: true,
+          showControls: true,
+        );
+      });
+    }
   }
 
   @override
   void dispose() {
-    _controller?.dispose();
+    _chewieController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
+    double screenHeight = MediaQuery.of(context).size.height / 2;
 
     return Dialog(
       child: Container(
         width: screenWidth,
-        height: screenHeight / 2,
-        padding: EdgeInsets.all(20),
+        height: screenHeight,
+        padding: const EdgeInsets.all(20),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             _isLoading
                 ? Shimmer.fromColors(
                     baseColor: Colors.grey[300]!,
                     highlightColor: Colors.grey[100]!,
                     child: Container(
-                      width: 300,
-                      height: screenHeight / 3,
+                      width: screenWidth - 40,
+                      height: screenHeight / 2 - 40,
                       color: Colors.white,
                     ),
                   )
-                : _controller != null && _controller!.value.isInitialized
-                    ? Column(
-                        children: [
-                          AspectRatio(
-                            aspectRatio: _controller!.value.aspectRatio,
-                            child: VideoPlayer(_controller!),
-                          ),
-                          SizedBox(height: 20),
-                          Ink(
-                            decoration: const ShapeDecoration(
-                              color: Colors.lightBlue,
-                              shape: CircleBorder(),
-                            ),
-                            child: IconButton(
-                              icon: Icon(
-                                _controller!.value.isPlaying
-                                    ? Icons.pause
-                                    : Icons.play_arrow,
-                              ),
-                              color: Colors.white,
-                              onPressed: () {
-                                setState(() {
-                                  _controller!.value.isPlaying
-                                      ? _controller!.pause()
-                                      : _controller!.play();
-                                });
-                              },
-                            ),
-                          ),
-                        ],
-                      )
-                    : Container(),
+                : AspectRatio(
+                    aspectRatio: screenWidth/ (screenHeight / 1.5),
+                    child: Chewie(controller: _chewieController),
+                  ),
           ],
         ),
       ),

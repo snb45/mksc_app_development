@@ -19,20 +19,12 @@ class _SecondTabState extends State<SecondTab> {
   @override
   void initState() {
     super.initState();
-    final menuModel = Provider.of<MenuModel>(context, listen: false);
-    // getMenuDetails_(menuModel.menuID);
+    
   }
-
-  // Future<void> getMenuDetails_(String? menuID) async {
-  //   final menuModel = Provider.of<MenuModel>(context, listen: false);
-  //   final menus = await service.getMenuDetails(menuID);
-  //   menuModel.setData(menus);
-  //   menuModel.setLoading(false);
-  // }
 
   @override
   Widget build(BuildContext context) {
-    final menuModel = Provider.of<MenuModel>(context);
+    final menuModel = Provider.of<MenuModel>(context, listen: false);
     final data = menuModel.data;
     final dish = data["dish"] as Map<String, dynamic>? ?? {};
     final isLoading = menuModel.isLoading;
@@ -148,7 +140,7 @@ class _SecondTabState extends State<SecondTab> {
                     child: Html(
                       data: dish['recipe'],
                       style: {
-                        'body': Style(color: Colors.grey),
+                        'body': Style(color: Color.fromARGB(255, 132, 130, 130)),
                       },
                     ),
                   ),
@@ -163,7 +155,7 @@ class _SecondTabState extends State<SecondTab> {
             style: TextStyle(
               fontWeight: FontWeight.w700,
               fontSize: 15,
-              color: Colors.grey,
+              color: Color.fromARGB(255, 132, 130, 130),
             ),
           ),
         ),
@@ -194,7 +186,7 @@ class _SecondTabState extends State<SecondTab> {
                     child: Html(
                       data: dish['tableware'],
                       style: {
-                        'body': Style(color: Colors.grey),
+                        'body': Style(color: Color.fromARGB(255, 132, 130, 130)),
                       },
                     ),
                   ),
@@ -209,7 +201,7 @@ class _SecondTabState extends State<SecondTab> {
             style: TextStyle(
               fontWeight: FontWeight.w700,
               fontSize: 15,
-              color: Colors.grey,
+              color: Color.fromARGB(255, 132, 130, 130),
             ),
           ),
         ),
@@ -240,7 +232,7 @@ class _SecondTabState extends State<SecondTab> {
                     child: Html(
                       data: dish['utensils'],
                       style: {
-                        'body': Style(color: Colors.grey),
+                        'body': Style(color: Color.fromARGB(255, 132, 130, 130)),
                       },
                     ),
                   ),

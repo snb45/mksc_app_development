@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:mksc_mobile/screens/tab_one.dart';
 import 'package:mksc_mobile/screens/tab_two.dart';
 import 'package:mksc_mobile/service/services.dart';
+import 'package:chewie/chewie.dart';
 import 'package:video_player/video_player.dart';
 import '../modals/menu_modal.dart';
 import '../widgets/video_dialog.dart';
@@ -16,9 +17,9 @@ class MenuScreen extends StatefulWidget {
 }
 
 class _MenuScreenState extends State<MenuScreen> {
-  late VideoPlayerController _controller;
+  VideoPlayerController? _videoPlayerController;
+  ChewieController? _chewieController;
   final service = Services();
-  String videourl = '';
 
   @override
   void initState() {
@@ -26,23 +27,37 @@ class _MenuScreenState extends State<MenuScreen> {
     final menuModel = Provider.of<MenuModel>(context, listen: false);
     menuModel.setMenuID(widget.menuId);
     getMenuDetails_();
-    _controller = VideoPlayerController.network(videourl)
-      ..initialize().then((_) {
-        setState(() {});
-      });
   }
 
-  getMenuDetails_() async {
+  Future<void> getMenuDetails_() async {
     final menuModel = Provider.of<MenuModel>(context, listen: false);
     final menus = await service.getMenuDetails(menuModel.menuID);
-
     menuModel.setData(menus);
     menuModel.setLoading(false);
+
+    updateVideoUrl(menuModel.data['video']);
+  }
+
+  void updateVideoUrl(String? newUrl) {
+    if (newUrl != null) {
+      _videoPlayerController?.dispose();
+      _videoPlayerController = VideoPlayerController.network(newUrl)
+        ..initialize().then((_) {
+          setState(() {});
+          _chewieController = ChewieController(
+            videoPlayerController: _videoPlayerController!,
+            aspectRatio: _videoPlayerController!.value.aspectRatio,
+            autoPlay: true,
+            looping: true,
+          );
+        });
+    }
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _videoPlayerController?.dispose();
+    _chewieController?.dispose();
     super.dispose();
   }
 
@@ -87,7 +102,8 @@ class _MenuScreenState extends State<MenuScreen> {
             ),
             title: const Text(
               'Menu Screen',
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
+              style:
+                  TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
             ),
           ),
           body: TabBarView(
@@ -102,13 +118,19 @@ class _MenuScreenState extends State<MenuScreen> {
               builder: (context, menuModel, child) {
                 return FloatingActionButton(
                   onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return VideoDialog(
-                            controller: _controller, menuId: menuModel.menuID ?? "");
-                      },
-                    );
+                    print(
+                        "here i am .....................$_chewieController + ${menuModel.data['video']}");
+                    if (menuModel.data['video'] != null ||
+                        menuModel.data['video'] != '') {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return VideoDialog(
+                            menuId: menuModel.menuID ?? '',
+                          );
+                        },
+                      );
+                    }
                   },
                   backgroundColor: Colors.blue,
                   child: const Icon(
