@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => MenuModel()),
       ],
       child: MaterialApp(
-        title: 'mksc mobile',
+        title: 'MKSC APP',
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
           useMaterial3: true,

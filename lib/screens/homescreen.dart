@@ -29,11 +29,11 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     List<GridItem> modules = [
       GridItem(svgicon: 'assets/icons/chicken_.svg', title: 'Chicken House'),
-      GridItem(svgicon: 'assets/icons/menu.svg', title: 'Menu'),
-      GridItem(svgicon: 'assets/icons/vegetables.svg', title: 'Vegetable'),
-      GridItem(svgicon: 'assets/icons/laundry.svg', title: 'Laundry'),
-      GridItem(svgicon: 'assets/icons/beverage.svg', title: 'Beverage'),
-      GridItem(svgicon: 'assets/icons/bed.svg', title: 'Lodge Rooms'),
+      // GridItem(svgicon: 'assets/icons/menu.svg', title: 'Menu'),
+      // GridItem(svgicon: 'assets/icons/vegetables.svg', title: 'Vegetable'),
+      // GridItem(svgicon: 'assets/icons/laundry.svg', title: 'Laundry'),
+      // GridItem(svgicon: 'assets/icons/beverage.svg', title: 'Beverage'),
+      // GridItem(svgicon: 'assets/icons/bed.svg', title: 'Lodge Rooms'),
     ];
     return Scaffold(
         backgroundColor: Colors.white,
@@ -88,7 +88,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     const Padding(
                       padding: EdgeInsets.only(top: 2.0, left: 10),
                       child: Text(
-                        "Welcome get all data of mksc now ",
+                        "Welcome to MKSC Official Data Collection App",
                         style: TextStyle(
                             color: Colors.white,
                             fontSize: 15,
@@ -116,7 +116,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   Padding(
                                     padding: EdgeInsets.all(8.0),
                                     child: Text(
-                                      "View full",
+                                      "Export All Module Summary Reports",
                                       style: TextStyle(
                                           color: Colors.blue,
                                           fontSize: 15,
@@ -140,7 +140,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               Container(
                                 margin: const EdgeInsets.all(8.0),
                                 decoration: BoxDecoration(
-                                  color: Colors.orange,
+                                  color: Colors.yellow[600],
                                   borderRadius: BorderRadius.circular(8.0),
                                 ),
                                 child: MaterialButton(
@@ -154,7 +154,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     );
                                   },
                                   child: const Text(
-                                    "Download",
+                                    "Export PDF",
                                     style: TextStyle(
                                         color: Colors.white, fontSize: 14),
                                   ),
