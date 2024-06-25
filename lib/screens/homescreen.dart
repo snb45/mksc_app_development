@@ -29,8 +29,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     List<GridItem> modules = [
       GridItem(svgicon: 'assets/icons/chicken_.svg', title: 'Chicken House'),
-      GridItem(svgicon: 'assets/icons/menu.svg', title: 'Menu'),
-      GridItem(svgicon: 'assets/icons/vegetables.svg', title: 'Vegetable'),
+      // GridItem(svgicon: 'assets/icons/menu.svg', title: 'Menu'),
+      // GridItem(svgicon: 'assets/icons/vegetables.svg', title: 'Vegetable'),
       // GridItem(svgicon: 'assets/icons/laundry.svg', title: 'Laundry'),
       // GridItem(svgicon: 'assets/icons/beverage.svg', title: 'Beverage'),
       // GridItem(svgicon: 'assets/icons/bed.svg', title: 'Lodge Rooms'),
