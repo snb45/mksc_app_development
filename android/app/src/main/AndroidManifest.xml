@@ -2,7 +2,7 @@
     <uses-permission android:name="android.permission.INTERNET"/>
     <application
         android:usesCleartextTraffic="true"
-        android:label="mksc_app"
+        android:label="mksc_dev_app"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

@@ -14,21 +14,21 @@ class AuthResult {
 }
 
 class Services {
-  final authUrl               = 'https://development.mkscportal.co.tz/api/v1/auth/user';
-  final chickenUrl            = 'https://development.mkscportal.co.tz/api/v1/chickenHouse';
-  final chickenToDayUrl       = 'https://development.mkscportal.co.tz/api/v1/chicken/House/today/';
-  final alldataurl            = 'https://development.mkscportal.co.tz/api/v1/chickenHouse/all';
-  final getchickendata        = 'https://development.mkscportal.co.tz/api/v1/chickenHouse/';
-  final getcampurl            = 'https://development.mkscportal.co.tz/api/v1/camps';
-  final getcamptypeurl        = 'https://development.mkscportal.co.tz/api/v1/menu_type_by_camp_name/';
-  final getMenurl             = 'https://development.mkscportal.co.tz/api/v1/menu_by_day_type_camp';
-  final getMenutetails        = "https://development.mkscportal.co.tz/api/v1/menu_details";
-  final getVideoURL           = "https://development.mkscportal.co.tz/api/v1/dish_video";
-  final vegetableUrl          = "https://development.mkscportal.co.tz/api/v1/vegetable-list";
-  final availablevegetableUrl = "https://development.mkscportal.co.tz/api/v1/vegetable-today";
-  final vegetabledataurl      = "https://development.mkscportal.co.tz/api/v1/vegetable";
-  final savevegetableUrl      = "https://development.mkscportal.co.tz/api/v1/vegetable";
-  final getbydishesurl        = "https://development.mkscportal.co.tz/api/v1/dish_details";
+  final authUrl               = 'https://development.mkscportal.co.tz/api/v2/auth/user';
+  final chickenUrl            = 'https://development.mkscportal.co.tz/api/v2/chickenHouse';
+  final chickenToDayUrl       = 'https://development.mkscportal.co.tz/api/v2/chicken/House/today/';
+  final alldataurl            = 'https://development.mkscportal.co.tz/api/v2/chickenHouse/all';
+  final getchickendata        = 'https://development.mkscportal.co.tz/api/v2/chickenHouse/';
+  final getcampurl            = 'https://development.mkscportal.co.tz/api/v2/camps';
+  final getcamptypeurl        = 'https://development.mkscportal.co.tz/api/v2/menu_type_by_camp_name/';
+  final getMenurl             = 'https://development.mkscportal.co.tz/api/v2/menu_by_day_type_camp';
+  final getMenutetails        = "https://development.mkscportal.co.tz/api/v2/menu_details";
+  final getVideoURL           = "https://development.mkscportal.co.tz/api/v2/dish_video";
+  final vegetableUrl          = "https://development.mkscportal.co.tz/api/v2/vegetable-list";
+  final availablevegetableUrl = "https://development.mkscportal.co.tz/api/v2/vegetable-today";
+  final vegetabledataurl      = "https://development.mkscportal.co.tz/api/v2/vegetable";
+  final savevegetableUrl      = "https://development.mkscportal.co.tz/api/v2/vegetable";
+  final getbydishesurl        = "https://development.mkscportal.co.tz/api/v2/dish_details";
 
   Future<AuthResult> authenticateUser(BuildContext context, String category,
       String password, int countNo, String modifiedselectedCategory) async {
