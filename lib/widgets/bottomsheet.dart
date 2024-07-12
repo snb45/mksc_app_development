@@ -1,8 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:mksc_mobile/screens/authenticate.dart';
+import 'package:mksc_mobile/screens/laundy_screen.dart';
 import 'package:mksc_mobile/screens/menuscreen.dart';
 import 'package:mksc_mobile/screens/vegetable_screen.dart';
+import 'package:mksc_mobile/service/auth.dart';
 import 'package:mksc_mobile/service/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../screens/formdata.dart';
 import '../screens/viewdata.dart';
@@ -74,6 +78,19 @@ class _CampSelectionBottomSheetState extends State<CampSelectionBottomSheet> {
     return camps;
   }
 
+  String? token;
+
+  void initializeApp() async {
+    token = await getToken();
+  }
+
+  Future<String?> getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token');
+  }
+
+  AuthTokenProvider _authTokenProvider = AuthTokenProvider();
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -97,8 +114,32 @@ class _CampSelectionBottomSheetState extends State<CampSelectionBottomSheet> {
                 SizedBox(
                   height: 80,
                   child: GestureDetector(
-                    onTap: () {
+                    onTap: () async {
                       Navigator.pop(context);
+                      if (widget.title == "Laundry") {
+                        String? authToken = await getToken();
+                        bool isTokenExpired =
+                            await _authTokenProvider.isTokenExpired();
+
+                        if (authToken == null ||
+                            authToken == '' ||
+                            isTokenExpired) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const AuthenticateScreen(title: 'Laundry'),
+                            ),
+                          );
+                        } else {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => LaundryScreen(),
+                            ),
+                          );
+                        }
+                      } else {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -106,6 +147,8 @@ class _CampSelectionBottomSheetState extends State<CampSelectionBottomSheet> {
                                 AddData(title: widget.title ?? ''),
                           ),
                         );
+                      }
+
                       // if (widget.title == 'Vegetable') {
                       //   Navigator.pop(context);
                       //   Navigator.push(
@@ -116,7 +159,7 @@ class _CampSelectionBottomSheetState extends State<CampSelectionBottomSheet> {
                       //     ),
                       //   );
                       // } else {
-                        
+
                       // }
                     },
                     child: Padding(
@@ -151,50 +194,50 @@ class _CampSelectionBottomSheetState extends State<CampSelectionBottomSheet> {
                     ),
                   ),
                 ),
-                  SizedBox(
-                    height: 80,
-                    child: InkWell(
-                      onTap: () {
-                        Navigator.pop(context);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  ViewData(title: widget.title)),
-                        );
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 8.0, right: 8.0),
-                        child: Card(
-                          color: const Color.fromARGB(87, 255, 255, 255),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                            side: const BorderSide(
-                              color: Colors.blue,
-                              width: 0.2,
-                            ),
+                SizedBox(
+                  height: 80,
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                ViewData(title: widget.title)),
+                      );
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 8.0, right: 8.0),
+                      child: Card(
+                        color: const Color.fromARGB(87, 255, 255, 255),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                          side: const BorderSide(
+                            color: Colors.blue,
+                            width: 0.2,
                           ),
-                          elevation: 0,
-                          child: const Padding(
-                            padding: EdgeInsets.only(left: 10.0, right: 10),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Icon(
-                                  Icons.remove_red_eye,
-                                  color: Colors.blue,
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.only(left: 18.0),
-                                  child: Text("Click to Consults"),
-                                ),
-                              ],
-                            ),
+                        ),
+                        elevation: 0,
+                        child: const Padding(
+                          padding: EdgeInsets.only(left: 10.0, right: 10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Icon(
+                                Icons.remove_red_eye,
+                                color: Colors.blue,
+                              ),
+                              Padding(
+                                padding: EdgeInsets.only(left: 18.0),
+                                child: Text("Click to Consults"),
+                              ),
+                            ],
                           ),
                         ),
                       ),
                     ),
                   ),
+                ),
               ] else ...[
                 SizedBox(
                   height: 80,
@@ -442,9 +485,9 @@ class _CampSelectionBottomSheetState extends State<CampSelectionBottomSheet> {
                                       ? "Lunch"
                                       : campName == "3"
                                           ? "Dinner"
-                                          :campName == "4"
-                                          ? "Picnic"
-                                          : ""),
+                                          : campName == "4"
+                                              ? "Picnic"
+                                              : ""),
                               onTap: () {
                                 setState(() {
                                   typeID = campName;
@@ -455,8 +498,8 @@ class _CampSelectionBottomSheetState extends State<CampSelectionBottomSheet> {
                                           : campName == "3"
                                               ? "Dinner"
                                               : campName == "4"
-                                          ? "Picnic"
-                                          :  "";
+                                                  ? "Picnic"
+                                                  : "";
                                   _typeisExpanded = false;
                                 });
                               },
@@ -483,7 +526,7 @@ class _CampSelectionBottomSheetState extends State<CampSelectionBottomSheet> {
                       );
                     } else {
                       return Container(
-                         height: 200,
+                        height: 200,
                         child: ListView.builder(
                           scrollDirection: Axis.vertical,
                           shrinkWrap: true,
@@ -523,7 +566,6 @@ class _CampSelectionBottomSheetState extends State<CampSelectionBottomSheet> {
                     } else {
                       final camps = snapshot.data!;
                       return ListView.builder(
-                        
                         shrinkWrap: true,
                         itemCount: camps.length,
                         itemBuilder: (BuildContext context, int index) {

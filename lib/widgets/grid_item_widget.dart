@@ -23,7 +23,8 @@ class _GridItemWidgetState extends State<GridItemWidget> {
       onTap: () {
         if (widget.item.title == "Chicken House" ||
             widget.item.title == "Menu" ||
-            widget.item.title == "Vegetable") {
+            widget.item.title == "Vegetable" ||
+            widget.item.title == "Laundry") {
           showModalBottomSheet(
             context: context,
             builder: (BuildContext context) {

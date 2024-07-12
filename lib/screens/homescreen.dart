@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:mksc_mobile/screens/viewdata.dart';
+import 'package:mksc_mobile/utils/utils.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../modals/grid_item.dart';
 import '../widgets/grid_item_widget.dart';
@@ -25,15 +27,30 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  String _selectedCamp = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSelectedCamp();
+  }
+
+  _loadSelectedCamp() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _selectedCamp = prefs.getString('selectedCamp') ?? 'bashay rift lodge';
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     List<GridItem> modules = [
       GridItem(svgicon: 'assets/icons/chicken_.svg', title: 'Chicken House'),
-      // GridItem(svgicon: 'assets/icons/menu.svg', title: 'Menu'),
-      // GridItem(svgicon: 'assets/icons/vegetables.svg', title: 'Vegetable'),
-      // GridItem(svgicon: 'assets/icons/laundry.svg', title: 'Laundry'),
-      // GridItem(svgicon: 'assets/icons/beverage.svg', title: 'Beverage'),
-      // GridItem(svgicon: 'assets/icons/bed.svg', title: 'Lodge Rooms'),
+      GridItem(svgicon: 'assets/icons/menu.svg', title: 'Menu'),
+      GridItem(svgicon: 'assets/icons/vegetables.svg', title: 'Vegetable'),
+      GridItem(svgicon: 'assets/icons/laundry.svg', title: 'Laundry'),
+      GridItem(svgicon: 'assets/icons/beverage.svg', title: 'Beverage'),
+      GridItem(svgicon: 'assets/icons/bed.svg', title: 'Lodge Rooms'),
     ];
     return Scaffold(
         backgroundColor: Colors.white,
@@ -54,17 +71,37 @@ class _HomeScreenState extends State<HomeScreen> {
               Positioned(
                   top: 40,
                   left: 10,
-                  child: CircleAvatar(
-                    
-                    backgroundColor: Color.fromRGBO(218, 242, 250, 1),
-                    radius: 28,
-                    child: ClipOval(
-                      child: Image.asset(
-                        'assets/images/logo.png',
-                        fit: BoxFit.cover,
-                        
+                  child: Row(
+                    children: <Widget>[
+                      CircleAvatar(
+                        backgroundColor: Color.fromRGBO(218, 242, 250, 1),
+                        radius: 28,
+                        child: ClipOval(
+                          child: Image.asset(
+                            'assets/images/logo.png',
+                            fit: BoxFit.cover,
+                          ),
+                        ),
                       ),
-                    ),
+                      SizedBox(width: 10),
+                      DropdownButton<String>(
+                        value: _selectedCamp,
+                        hint: Text("Select Camp"),
+                        items: <String>['bashay rift lodge', 'grumeti camp']
+                            .map((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(Utils.capitalize(value)),
+                          );
+                        }).toList(),
+                        onChanged: (newValue) {
+                          setState(() {
+                            _selectedCamp = newValue!;
+                          });
+                          setSelectedCamp(newValue!);
+                        },
+                      )
+                    ],
                   )),
               Positioned(
                 top: MediaQuery.of(context).size.height / 6.5,
@@ -207,4 +244,9 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ));
   }
+}
+
+Future<void> setSelectedCamp(String camp) async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setString('selectedCamp', camp);
 }
