@@ -249,7 +249,7 @@ class _LaundryScreenState extends State<LaundryScreen> {
                                             onPressed: () {
                                               Navigator.of(context).pop();
                                             },
-                                          ),
+                                          ),  
                                           TextButton(
                                             child: Text('Save'),
                                             onPressed: () async {

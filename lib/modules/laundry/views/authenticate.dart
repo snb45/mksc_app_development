@@ -126,14 +126,14 @@ class _AuthenticateState extends State<AuthenticateScreen> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: ElevatedButton(
-                    onPressed: () async {
+                    onPressed: () async { 
                       if (_formKey.currentState!.validate()) {
                         setState(() {
                           isLoading = true;
                         });
                         final resp =
                             await _serv.login(_codeController.text, 'laundry');
-                        if (resp != null || resp != '') {
+                        if (resp) {
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(

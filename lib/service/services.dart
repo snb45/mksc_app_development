@@ -375,9 +375,7 @@ class Services {
     final payload = json.encode({
       'email': category == "Vegetable"
           ? "vegetable@vegetable.com"
-          : category == "Chicken House"
-              ? "laundry@laundry.com"
-              : "laundry@laundry.com",
+          : "chicken@chicken.com",
       'password': password,
     });
 
@@ -474,7 +472,7 @@ class Services {
       int? circle, String machineType, int? id) async {
     var url = Uri.parse(updateLaundryDataUrl + id.toString());
     var camp = await getSelectedCampPreference();
-    var token = await getSharedString('token');
+    var token = await getSharedString(Constants.laundrytoken);
     print('Token: $token');
 
     var response = await http.patch(
