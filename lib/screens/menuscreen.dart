@@ -116,21 +116,21 @@ class _MenuScreenState extends State<MenuScreen> {
             padding: const EdgeInsets.only(bottom: 35.0, right: 10),
             child: Consumer<MenuModel>(
               builder: (context, menuModel, child) {
+                if (menuModel.data['video'] == null ||
+                    menuModel.data['video'] == '') {
+                  return Container();
+                }
+
                 return FloatingActionButton(
                   onPressed: () {
-                    print(
-                        "here i am .....................$_chewieController + ${menuModel.data['video']}");
-                    if (menuModel.data['video'] != null ||
-                        menuModel.data['video'] != '') {
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return VideoDialog(
-                            menuId: menuModel.menuID ?? '',
-                          );
-                        },
-                      );
-                    }
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return VideoDialog(
+                          menuId: menuModel.menuID ?? '',
+                        );
+                      },
+                    );
                   },
                   backgroundColor: Colors.blue,
                   child: const Icon(
