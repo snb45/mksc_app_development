@@ -2,8 +2,9 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:mksc_mobile/screens/laundy_screen.dart';
+import 'package:mksc_mobile/modules/laundry/views/laundy_screen.dart';
 import 'package:mksc_mobile/service/services.dart';
+import 'package:mksc_mobile/utils/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthenticateScreen extends StatefulWidget {
@@ -29,7 +30,7 @@ class _AuthenticateState extends State<AuthenticateScreen> {
 
   Future<String?> getToken() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('token');
+    return prefs.getString(Constants.laundrytoken);
   }
 
   Services _serv = Services();
@@ -130,7 +131,8 @@ class _AuthenticateState extends State<AuthenticateScreen> {
                         setState(() {
                           isLoading = true;
                         });
-                        final resp = await _serv.login(_codeController.text);
+                        final resp =
+                            await _serv.login(_codeController.text, 'laundry');
                         if (resp != null || resp != '') {
                           Navigator.pushReplacement(
                             context,

@@ -2,7 +2,8 @@ import 'dart:convert';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import 'package:mksc_mobile/service/auth.dart';
+import 'package:mksc_mobile/modules/laundry/providers/auth_provider.dart';
+import 'package:mksc_mobile/utils/constants.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -14,26 +15,41 @@ class AuthResult {
 }
 
 class Services {
-  final authUrl               = 'https://development.mkscportal.co.tz/api/v2/auth/user';
-  final chickenUrl            = 'https://development.mkscportal.co.tz/api/v2/chickenHouse';
-  final chickenToDayUrl       = 'https://development.mkscportal.co.tz/api/v2/chicken/House/today/';
-  final alldataurl            = 'https://development.mkscportal.co.tz/api/v2/chickenHouse/all';
-  final getchickendata        = 'https://development.mkscportal.co.tz/api/v2/chickenHouse/';
-  final getcampurl            = 'https://development.mkscportal.co.tz/api/v2/camps';
-  final getcamptypeurl        = 'https://development.mkscportal.co.tz/api/v2/menu_type_by_camp_name/';
-  final getMenurl             = 'https://development.mkscportal.co.tz/api/v2/menu_by_day_type_camp';
-  final getMenutetails        = "https://development.mkscportal.co.tz/api/v2/menu_details";
-  final getVideoURL           = "https://development.mkscportal.co.tz/api/v2/dish_video";
-  final vegetableUrl          = "https://development.mkscportal.co.tz/api/v2/vegetable-list";
-  final availablevegetableUrl = "https://development.mkscportal.co.tz/api/v2/vegetable-today";
-  final vegetabledataurl      = "https://development.mkscportal.co.tz/api/v2/vegetable";
-  final savevegetableUrl      = "https://development.mkscportal.co.tz/api/v2/vegetable";
-  final getbydishesurl        = "https://development.mkscportal.co.tz/api/v2/dish_details";
+  final authUrl = 'https://development.mkscportal.co.tz/api/v2/auth/user';
+  final chickenUrl = 'https://development.mkscportal.co.tz/api/v2/chickenHouse';
+  final chickenToDayUrl =
+      'https://development.mkscportal.co.tz/api/v2/chicken/House/today/';
+  final alldataurl =
+      'https://development.mkscportal.co.tz/api/v2/chickenHouse/all';
+  final getchickendata =
+      'https://development.mkscportal.co.tz/api/v2/chickenHouse/';
+  final getcampurl = 'https://development.mkscportal.co.tz/api/v2/camps';
+  final getcamptypeurl =
+      'https://development.mkscportal.co.tz/api/v2/menu_type_by_camp_name/';
+  final getMenurl =
+      'https://development.mkscportal.co.tz/api/v2/menu_by_day_type_camp';
+  final getMenutetails =
+      "https://development.mkscportal.co.tz/api/v2/menu_details";
+  final getVideoURL = "https://development.mkscportal.co.tz/api/v2/dish_video";
+  final vegetableUrl =
+      "https://development.mkscportal.co.tz/api/v2/vegetable-list";
+  final availablevegetableUrl =
+      "https://development.mkscportal.co.tz/api/v2/vegetable-today";
+  final vegetabledataurl =
+      "https://development.mkscportal.co.tz/api/v2/vegetable";
+  final savevegetableUrl =
+      "https://development.mkscportal.co.tz/api/v2/vegetable";
+  final getbydishesurl =
+      "https://development.mkscportal.co.tz/api/v2/dish_details";
 
-  final machineSize                 = 'https://development.mkscportal.co.tz/api/v2/laundryMachine';
-  final storeLaundryDataUrl         = 'https://development.mkscportal.co.tz/api/v2/laundryData';
-  final getLaundryTodayDataUrl      = 'https://development.mkscportal.co.tz/api/v2/laundryData/today';
-  final String updateLaundryDataUrl = 'https://development.mkscportal.co.tz/api/v2/laundryData/';
+  final machineSize =
+      'https://development.mkscportal.co.tz/api/v2/laundryMachine';
+  final storeLaundryDataUrl =
+      'https://development.mkscportal.co.tz/api/v2/laundryData';
+  final getLaundryTodayDataUrl =
+      'https://development.mkscportal.co.tz/api/v2/laundryData/today';
+  final String updateLaundryDataUrl =
+      'https://development.mkscportal.co.tz/api/v2/laundryData/';
 
   Future<AuthResult> authenticateUser(BuildContext context, String category,
       String password, int countNo, String modifiedselectedCategory) async {
@@ -86,7 +102,7 @@ class Services {
     return AuthResult(false);
   }
 
-  Future<bool> login(password) async {
+  Future<bool> login(String password, String module) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final headers = {
       'Accept': 'application/json',
@@ -103,11 +119,19 @@ class Services {
         headers: headers,
       );
       final responseData = json.decode(response.body);
+      print('laundry: ' + responseData.toString());
 
       if (responseData['token'] != null) {
         String formattedTime = DateTime.now().toIso8601String();
-        await prefs.setString('token', responseData['token']);
-        await prefs.setString('currentTime', formattedTime);
+        if (module == "laundry") {
+          await prefs.setString(Constants.laundrytoken, responseData['token']);
+          await prefs.setString(Constants.laundryTokenTimestamp, formattedTime);
+          await prefs.setString(
+              Constants.selectedCamp, responseData['camp'] ?? '');
+        } else {
+          await prefs.setString('token', responseData['token']);
+          await prefs.setString('currentTime', formattedTime);
+        }
         print("token saved..................");
         return true;
       }
@@ -273,7 +297,8 @@ class Services {
   }
 
   Future<List> getMenu(day, menutype, camp) async {
-    final response = await http.get(Uri.parse('$getMenurl/$day/$menutype/$camp'));
+    final response =
+        await http.get(Uri.parse('$getMenurl/$day/$menutype/$camp'));
     if (response.statusCode == 200) {
       final List<dynamic> data = jsonDecode(response.body);
       List campNames = data;

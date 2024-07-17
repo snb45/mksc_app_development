@@ -1,11 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:mksc_mobile/screens/authenticate.dart';
-import 'package:mksc_mobile/screens/laundy_screen.dart';
+import 'package:mksc_mobile/modules/laundry/views/authenticate.dart';
+import 'package:mksc_mobile/modules/laundry/views/laundy_screen.dart';
 import 'package:mksc_mobile/screens/menuscreen.dart';
 import 'package:mksc_mobile/screens/vegetable_screen.dart';
-import 'package:mksc_mobile/service/auth.dart';
+import 'package:mksc_mobile/modules/laundry/providers/auth_provider.dart';
 import 'package:mksc_mobile/service/services.dart';
+import 'package:mksc_mobile/utils/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../screens/formdata.dart';
@@ -86,7 +87,7 @@ class _CampSelectionBottomSheetState extends State<CampSelectionBottomSheet> {
 
   Future<String?> getToken() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('token');
+    return prefs.getString(Constants.laundrytoken);
   }
 
   AuthTokenProvider _authTokenProvider = AuthTokenProvider();

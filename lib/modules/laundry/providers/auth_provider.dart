@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mksc_mobile/utils/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthTokenProvider with ChangeNotifier {
@@ -15,8 +16,8 @@ class AuthTokenProvider with ChangeNotifier {
     const tokenExpiryDuration = Duration(hours: 4);
 
     final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
-    final savedTimeString = prefs.getString('currentTime');
+    final token = prefs.getString(Constants.laundrytoken);
+    final savedTimeString = prefs.getString(Constants.laundryTokenTimestamp);
 
     if (token == null || savedTimeString == null) {
       return true;
