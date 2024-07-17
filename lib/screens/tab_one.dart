@@ -1,3 +1,6 @@
+import 'dart:ffi';
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
@@ -40,7 +43,7 @@ class _MenuTab1State extends State<MenuTab1> {
 
   Future<void> getUpdatedMenuDetails_(String selectedID) async {
     final menuModel = Provider.of<MenuModel>(context, listen: false);
-    final menus = await service.getMenuByDishes(selectedID);
+    final menus     = await service.getMenuByDishes(selectedID);
     menuModel.setData(menus);
     setState(() {
       dishNames = menus["otherDishesFromSelectedMenu"];
@@ -139,11 +142,11 @@ class _MenuTab1State extends State<MenuTab1> {
         const Padding(
           padding: EdgeInsets.all(8.0),
           child: Text(
-            "Filter Dishes",
+            "Select to choose a Dish",
             style: TextStyle(
               fontWeight: FontWeight.w700,
               fontSize: 15,
-              color: Colors.grey,
+              color: Colors.black,
             ),
           ),
         ),
@@ -205,11 +208,11 @@ class _MenuTab1State extends State<MenuTab1> {
               const Padding(
                 padding: EdgeInsets.all(8.0),
                 child: Text(
-                  "Portions",
+                  "Portions Configurations",
                   style: TextStyle(
                     fontWeight: FontWeight.w700,
                     fontSize: 15,
-                    color: Colors.grey,
+                    color: Colors.black,
                   ),
                 ),
               ),
@@ -288,6 +291,7 @@ class _MenuTab1State extends State<MenuTab1> {
                           'Product Name',
                           style: TextStyle(
                             color: Colors.white,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
@@ -301,6 +305,7 @@ class _MenuTab1State extends State<MenuTab1> {
                           'Unit Needed',
                           style: TextStyle(
                             color: Colors.white,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
@@ -316,10 +321,9 @@ class _MenuTab1State extends State<MenuTab1> {
                         child: Column(
                           children: [
                             Text(
-                                 portion['productName']
-                                ,
+                                 portion['productName'],
                             style: const TextStyle(
-                              color: Colors.grey,
+                              color: Colors.black,
                             ),
                           ),
                         if(portion['extraDetails'] != null)...[
@@ -336,17 +340,17 @@ class _MenuTab1State extends State<MenuTab1> {
                     ),
                     TableCell(
                       child: Center(
-                        child: portion['multiply'] == '1'
+                        child: portion['multiply'] == 1
                             ? Text(
-                                '${(double.parse(portion['unitNeeded'].replaceAll(',', '')) * selectedPortion).toString()} ${portion['unit'].replaceAll(',', '')}',
+                          '${(double.parse(portion['unitNeeded'].replaceAll(',', '')) * selectedPortion).toStringAsFixed(2)} (${portion['unit'].replaceAll(',', '')})',
                                 style: const TextStyle(
-                                  color: Colors.grey,
+                                  color: Colors.black,
                                 ),
                               )
                             : Text(
-                                '${(int.parse(portion['unitNeeded'].replaceAll(',', ''))).toString()} ${portion['unit'].replaceAll(',', '')}',
+                          '${(double.parse(portion['unitNeeded'].replaceAll(',', ''))).toStringAsFixed(2)} (${portion['unit'].replaceAll(',', '')})',
                                 style: const TextStyle(
-                                  color: Colors.grey,
+                                  color: Colors.black,
                                 ),
                               ),
                       ),
@@ -360,16 +364,16 @@ class _MenuTab1State extends State<MenuTab1> {
           const Padding(
             padding: EdgeInsets.all(8.0),
             child: Text(
-              "Menu Images",
+              "Dish Image",
               style: TextStyle(
                 fontWeight: FontWeight.w700,
-                fontSize: 15,
-                color: Colors.grey,
+                fontSize: 25,
+                color: Colors.black,
               ),
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(top: 10.0),
+            padding: const EdgeInsets.only(top: 0.0),
             child: Container(
               constraints: BoxConstraints(
                 minHeight: 300,

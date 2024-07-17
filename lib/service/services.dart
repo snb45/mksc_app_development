@@ -14,43 +14,26 @@ class AuthResult {
 }
 
 class Services {
-  final authUrl = 'https://development.mkscportal.co.tz/api/v2/auth/user';
-  final chickenUrl = 'https://development.mkscportal.co.tz/api/v2/chickenHouse';
-  final chickenToDayUrl =
-      'https://development.mkscportal.co.tz/api/v2/chicken/House/today/';
-  final alldataurl =
-      'https://development.mkscportal.co.tz/api/v2/chickenHouse/all';
-  final getchickendata =
-      'https://development.mkscportal.co.tz/api/v2/chickenHouse/';
-  final getcampurl = 'https://development.mkscportal.co.tz/api/v2/camps';
-  final getcamptypeurl =
-      'https://development.mkscportal.co.tz/api/v2/menu_type_by_camp_name/';
-  final getMenurl =
-      'https://development.mkscportal.co.tz/api/v2/menu_by_day_type_camp';
-  final getMenutetails =
-      "https://development.mkscportal.co.tz/api/v2/menu_details";
-  final getVideoURL = "https://development.mkscportal.co.tz/api/v2/dish_video";
-  final vegetableUrl =
-      "https://development.mkscportal.co.tz/api/v2/vegetable-list";
-  final availablevegetableUrl =
-      "https://development.mkscportal.co.tz/api/v2/vegetable-today";
-  final vegetabledataurl =
-      "https://development.mkscportal.co.tz/api/v2/vegetable";
-  final savevegetableUrl =
-      "https://development.mkscportal.co.tz/api/v2/vegetable";
-  final getbydishesurl =
-      "https://development.mkscportal.co.tz/api/v2/dish_details";
+  final authUrl               = 'https://development.mkscportal.co.tz/api/v2/auth/user';
+  final chickenUrl            = 'https://development.mkscportal.co.tz/api/v2/chickenHouse';
+  final chickenToDayUrl       = 'https://development.mkscportal.co.tz/api/v2/chicken/House/today/';
+  final alldataurl            = 'https://development.mkscportal.co.tz/api/v2/chickenHouse/all';
+  final getchickendata        = 'https://development.mkscportal.co.tz/api/v2/chickenHouse/';
+  final getcampurl            = 'https://development.mkscportal.co.tz/api/v2/camps';
+  final getcamptypeurl        = 'https://development.mkscportal.co.tz/api/v2/menu_type_by_camp_name/';
+  final getMenurl             = 'https://development.mkscportal.co.tz/api/v2/menu_by_day_type_camp';
+  final getMenutetails        = "https://development.mkscportal.co.tz/api/v2/menu_details";
+  final getVideoURL           = "https://development.mkscportal.co.tz/api/v2/dish_video";
+  final vegetableUrl          = "https://development.mkscportal.co.tz/api/v2/vegetable-list";
+  final availablevegetableUrl = "https://development.mkscportal.co.tz/api/v2/vegetable-today";
+  final vegetabledataurl      = "https://development.mkscportal.co.tz/api/v2/vegetable";
+  final savevegetableUrl      = "https://development.mkscportal.co.tz/api/v2/vegetable";
+  final getbydishesurl        = "https://development.mkscportal.co.tz/api/v2/dish_details";
 
-  final machineSize =
-      'https://development.mkscportal.co.tz/api/v2/laundryMachine';
-
-  final storeLaundryDataUrl =
-      'https://development.mkscportal.co.tz/api/v2/laundryData';
-  final getLaundryTodayDataUrl =
-      'https://development.mkscportal.co.tz/api/v2/laundryData/today';
-
-  final String updateLaundryDataUrl =
-      'https://development.mkscportal.co.tz/api/v2/laundryData/';
+  final machineSize                 = 'https://development.mkscportal.co.tz/api/v2/laundryMachine';
+  final storeLaundryDataUrl         = 'https://development.mkscportal.co.tz/api/v2/laundryData';
+  final getLaundryTodayDataUrl      = 'https://development.mkscportal.co.tz/api/v2/laundryData/today';
+  final String updateLaundryDataUrl = 'https://development.mkscportal.co.tz/api/v2/laundryData/';
 
   Future<AuthResult> authenticateUser(BuildContext context, String category,
       String password, int countNo, String modifiedselectedCategory) async {
@@ -71,10 +54,6 @@ class Services {
         headers: headers,
       );
       final responseData = json.decode(response.body);
-
-      print("responseData are ");
-      print(responseData);
-      print(responseData['token']);
       if (responseData['token'] != null) {
         //SAVE DATA ON LOCAL STORAGE
         String formattedTime = DateTime.now().toIso8601String();
@@ -294,13 +273,10 @@ class Services {
   }
 
   Future<List> getMenu(day, menutype, camp) async {
-    final response =
-        await http.get(Uri.parse('$getMenurl/$day/$menutype/$camp'));
-
+    final response = await http.get(Uri.parse('$getMenurl/$day/$menutype/$camp'));
     if (response.statusCode == 200) {
       final List<dynamic> data = jsonDecode(response.body);
       List campNames = data;
-      print(data);
       return data;
     } else {
       throw Exception('Failed to load Menu list');
@@ -331,10 +307,8 @@ class Services {
 
   getVideos(id) async {
     final response = await http.get(Uri.parse('$getVideoURL/$id'));
-    print(response.statusCode);
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = jsonDecode(response.body);
-      print(data['video']['path']);
       return data['video']['path'];
     } else {
       throw Exception('Failed to load video');
