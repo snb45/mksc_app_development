@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:video_player/video_player.dart';
-import 'package:shimmer/shimmer.dart';
-import 'package:chewie/chewie.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 import '../modals/menu_modal.dart';
 import '../service/services.dart';
@@ -21,7 +19,7 @@ class VideoDialog extends StatefulWidget {
 
 class _VideoDialogState extends State<VideoDialog> {
   late bool _isLoading;
-  late ChewieController _chewieController;
+  late YoutubePlayerController _youtubeController;
   final service = Services();
 
   @override
@@ -38,15 +36,16 @@ class _VideoDialogState extends State<VideoDialog> {
   }
 
   void updateVideoUrl(String? newUrl) {
+    print('menuurl:' + newUrl!);
     if (newUrl != null) {
       setState(() {
         _isLoading = false;
-        _chewieController = ChewieController(
-          videoPlayerController: VideoPlayerController.network(newUrl),
-          autoInitialize: true,
-          autoPlay: true,
-          looping: true,
-          showControls: true,
+        _youtubeController = YoutubePlayerController(
+          initialVideoId: YoutubePlayer.convertUrlToId(newUrl)!,
+          flags: YoutubePlayerFlags(
+            autoPlay: true,
+            mute: false,
+          ),
         );
       });
     }
@@ -54,7 +53,7 @@ class _VideoDialogState extends State<VideoDialog> {
 
   @override
   void dispose() {
-    _chewieController.dispose();
+    _youtubeController.dispose();
     super.dispose();
   }
 
@@ -73,18 +72,10 @@ class _VideoDialogState extends State<VideoDialog> {
           children: [
             const SizedBox(height: 20),
             _isLoading
-                ? Shimmer.fromColors(
-                    baseColor: Colors.grey[300]!,
-                    highlightColor: Colors.grey[100]!,
-                    child: Container(
-                      width: screenWidth - 40,
-                      height: screenHeight / 2 - 40,
-                      color: Colors.white,
-                    ),
-                  )
-                : AspectRatio(
-                    aspectRatio: screenWidth/ (screenHeight / 1.5),
-                    child: Chewie(controller: _chewieController),
+                ? CircularProgressIndicator()
+                : YoutubePlayer(
+                    controller: _youtubeController,
+                    showVideoProgressIndicator: true,
                   ),
           ],
         ),
