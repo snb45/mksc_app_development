@@ -234,289 +234,6 @@ class _AddDataState extends State<AddData> {
   }
 
   Widget build(BuildContext context) {
-    List<Widget> laundry = <Widget>[
-      if (widget.title == 'Vegetable' && _currentStep == 1) ...[
-        //implementation for vegetable List
-        const SizedBox(height: 10),
-        Container(
-          height: MediaQuery.of(context).size.height,
-          color: Colors.transparent,
-          child: VegetableScreen(
-            title: widget.title,
-          ),
-        )
-      ],
-      if (tokenExpired == true && _currentStep == 0) ...[
-        const SizedBox(height: 10),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 8.0),
-          child: Text(
-            "Chicken House",
-            style: TextStyle(
-                fontSize: 22, color: Colors.white, fontWeight: FontWeight.bold),
-          ),
-        ),
-        const SizedBox(height: 20),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: Text(
-            "Enter Code to Input Data for ${widget.title}",
-            style: const TextStyle(
-                fontSize: 15,
-                color: Colors.white70,
-                fontWeight: FontWeight.w300),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: TextFormField(
-            controller: _codeController,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.white),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.white),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.white),
-              ),
-              hintText: 'Enter Code',
-              hintStyle: TextStyle(color: Colors.white60),
-              filled: true,
-              fillColor: Colors.white,
-            ),
-            style: const TextStyle(color: Color.fromARGB(255, 49, 49, 49)),
-            validator: (value) {
-              if (value!.isEmpty) {
-                return 'Please enter your code';
-              }
-              return null;
-            },
-          ),
-        ),
-        const SizedBox(height: 10),
-        if (_currentStep < 1) ...[
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: ElevatedButton(
-              onPressed: () async {
-                if (_formKey.currentState!.validate()) {
-                  setState(() {
-                    isLoading = true;
-                  });
-                  final resp = await _serv.authentication(
-                      context, widget.title, _codeController.text);
-                  if (resp != null || resp != '') {
-                    setState(() {
-                      token = resp;
-                    });
-                    setState(() {
-                      isLoading = false;
-                    });
-                    if (_currentStep < 2) {
-                      setState(() {
-                        _currentStep += 1;
-                      });
-                    }
-                  } else {
-                    Fluttertoast.showToast(
-                        msg: "Authentication failed!",
-                        toastLength: Toast.LENGTH_SHORT,
-                        gravity: ToastGravity.BOTTOM,
-                        timeInSecForIosWeb: 1,
-                        backgroundColor: Colors.red,
-                        textColor: Colors.white,
-                        fontSize: 16.0);
-                  }
-                }
-              },
-              child: const Text('Continue'),
-            ),
-          ),
-        ],
-      ],
-
-      if (_currentStep >= 1 && widget.title != "Vegetable") ...[
-        if (widget.title == "Chicken House") ...[
-          const SizedBox(height: 10),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 8.0),
-            child: Text(
-              "Select Item To Add Data ",
-              style: TextStyle(
-                  fontSize: 15,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: SizedBox(
-              height: MediaQuery.of(context).size.height * 0.13,
-              child: GridView.builder(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 4.0,
-                  mainAxisSpacing: 4.0,
-                  childAspectRatio: MediaQuery.of(context).size.width /
-                      (MediaQuery.of(context).size.height / 8),
-                ),
-                itemCount: categories.length,
-                itemBuilder: (context, index) {
-                  final categoryName = categories[index].name;
-                  final isMatched = isCategoryMatched(categoryName);
-                  return GestureDetector(
-                    onTap: isMatched
-                        ? null
-                        : () {
-                            setState(() {
-                              selectedIndex = index;
-                              selectedCategory = categoryName;
-                              _currentStep += 1;
-                            });
-                          },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                            color: Colors.blue.withOpacity(0), width: 2.0),
-                        borderRadius: BorderRadius.circular(8.0),
-                        color: isMatched
-                            ? Colors.orange.withOpacity(0.7)
-                            : selectedIndex == index
-                                ? Colors.orange.withOpacity(0.7)
-                                : Colors.white,
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            Padding(
-                              padding: const EdgeInsets.only(right: 18.0),
-                              child: SvgPicture.asset(
-                                categories[index].svgicon,
-                                height: 20,
-                                width: 20,
-                                color: isMatched
-                                    ? Colors.white
-                                    : selectedIndex == index
-                                        ? Colors.white
-                                        : Colors.blue,
-                              ),
-                            ),
-                            const SizedBox(height: 18.0),
-                            Text(
-                              categoryName,
-                              style: TextStyle(
-                                  color: isMatched
-                                      ? Colors.white
-                                      : selectedIndex == index
-                                          ? Colors.white
-                                          : Colors.blue),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ),
-        ],
-      ],
-      if (_currentStep >= 2 && widget.title != "Vegetable") ...[
-        const SizedBox(height: 10),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: Text(
-            "Enter data for ${widget.title}",
-            style: const TextStyle(
-                fontSize: 15,
-                color: Colors.white70,
-                fontWeight: FontWeight.w200),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: TextFormField(
-            controller: _countController,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.white),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.white),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.white),
-              ),
-              //  labelText: 'Enter data',
-              // labelStyle: TextStyle(color: Color.fromARGB(211, 65, 156, 230)),
-              hintText: 'Enter data',
-              hintStyle: TextStyle(color: Colors.white60),
-              filled: true,
-              fillColor: Colors.white,
-            ),
-            style: const TextStyle(color: Color.fromARGB(255, 49, 49, 49)),
-            validator: (value) {
-              if (value!.isEmpty) {
-                return 'Please enter ${widget.title} data';
-              }
-              return null;
-            },
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
-            children: [
-              ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    if (_currentStep > 0) {
-                      setState(() {
-                        _currentStep -= 1;
-                      });
-                    }
-                  }
-                },
-                child: const Text('Back'),
-              ),
-              const SizedBox(width: 16),
-              ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    setState(() {
-                      isLoading = true;
-                    });
-                    saveData(_codeController.text, _countController.text,
-                        selectedCategory);
-                  }
-                },
-                child: const Text('Submit'),
-              ),
-            ],
-          ),
-        ),
-      ],
-
-      //implementation for data views
-      if (widget.title != "Chicken House") ...[
-        const SizedBox(height: 10),
-        Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: Container(
-            height: 400,
-            color: Colors.transparent,
-            child: GetData(tokenExpired: tokenExpired),
-          ),
-        )
-      ]
-    ];
     return Scaffold(
       backgroundColor: Colors.blue,
       appBar: AppBar(
@@ -553,7 +270,295 @@ class _AddDataState extends State<AddData> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: laundry,
+                  children: [
+                    if (widget.title == 'Vegetable' && _currentStep == 1) ...[
+                      //implementation for vegetable List
+                      const SizedBox(height: 10),
+                      Container(
+                        height: MediaQuery.of(context).size.height,
+                        color: Colors.transparent,
+                        child: VegetableScreen(
+                          title: widget.title,
+                        ),
+                      )
+                    ],
+                    if (tokenExpired == true && _currentStep == 0) ...[
+                      const SizedBox(height: 10),
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Text(
+                          "Welcome to MKSB",
+                          style: TextStyle(
+                              fontSize: 22,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Text(
+                          "Enter Code to Input Data for ${widget.title}",
+                          style: const TextStyle(
+                              fontSize: 15,
+                              color: Colors.white70,
+                              fontWeight: FontWeight.w300),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: TextFormField(
+                          controller: _codeController,
+                          keyboardType: TextInputType.number,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.white),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.white),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.white),
+                            ),
+                            hintText: 'Enter Code',
+                            hintStyle: TextStyle(color: Colors.white60),
+                            filled: true,
+                            fillColor: Colors.white,
+                          ),
+                          style: const TextStyle(
+                              color: Color.fromARGB(255, 49, 49, 49)),
+                          validator: (value) {
+                            if (value!.isEmpty) {
+                              return 'Please enter your code';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      if (_currentStep < 1) ...[
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: ElevatedButton(
+                            onPressed: () async {
+                              if (_formKey.currentState!.validate()) {
+                                setState(() {
+                                  isLoading = true;
+                                });
+                                final resp = await _serv.authentication(context,
+                                    widget.title, _codeController.text);
+                                if (resp != null || resp != '') {
+                                  setState(() {
+                                    token = resp;
+                                  });
+                                  setState(() {
+                                    isLoading = false;
+                                  });
+                                  if (_currentStep < 2) {
+                                    setState(() {
+                                      _currentStep += 1;
+                                    });
+                                  }
+                                } else {
+                                  Fluttertoast.showToast(
+                                      msg: "Authentication failed!",
+                                      toastLength: Toast.LENGTH_SHORT,
+                                      gravity: ToastGravity.BOTTOM,
+                                      timeInSecForIosWeb: 1,
+                                      backgroundColor: Colors.red,
+                                      textColor: Colors.white,
+                                      fontSize: 16.0);
+                                }
+                              }
+                            },
+                            child: const Text('Continue'),
+                          ),
+                        ),
+                      ],
+                    ],
+
+                    if (_currentStep >= 1 && widget.title != "Vegetable") ...[
+                      const SizedBox(height: 10),
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Text(
+                          "Please select Category ",
+                          style: TextStyle(
+                              fontSize: 15,
+                              color: Colors.white70,
+                              fontWeight: FontWeight.w300),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.13,
+                          child: GridView.builder(
+                            gridDelegate:
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              crossAxisSpacing: 4.0,
+                              mainAxisSpacing: 4.0,
+                              childAspectRatio:
+                                  MediaQuery.of(context).size.width /
+                                      (MediaQuery.of(context).size.height / 8),
+                            ),
+                            itemCount: categories.length,
+                            itemBuilder: (context, index) {
+                              final categoryName = categories[index].name;
+                              final isMatched = isCategoryMatched(categoryName);
+                              return GestureDetector(
+                                onTap: isMatched
+                                    ? null
+                                    : () {
+                                        setState(() {
+                                          selectedIndex = index;
+                                          selectedCategory = categoryName;
+                                          _currentStep += 1;
+                                        });
+                                      },
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                        color: Colors.blue.withOpacity(0),
+                                        width: 2.0),
+                                    borderRadius: BorderRadius.circular(8.0),
+                                    color: isMatched
+                                        ? Colors.orange.withOpacity(0.7)
+                                        : selectedIndex == index
+                                            ? Colors.orange.withOpacity(0.7)
+                                            : Colors.white,
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: <Widget>[
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                              right: 18.0),
+                                          child: SvgPicture.asset(
+                                            categories[index].svgicon,
+                                            height: 20,
+                                            width: 20,
+                                            color: isMatched
+                                                ? Colors.white
+                                                : selectedIndex == index
+                                                    ? Colors.white
+                                                    : Colors.blue,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 18.0),
+                                        Text(
+                                          categoryName,
+                                          style: TextStyle(
+                                              color: isMatched
+                                                  ? Colors.white
+                                                  : selectedIndex == index
+                                                      ? Colors.white
+                                                      : Colors.blue),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
+                    if (_currentStep >= 2 && widget.title != "Vegetable") ...[
+                      const SizedBox(height: 10),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Text(
+                          "Enter data for ${widget.title}",
+                          style: const TextStyle(
+                              fontSize: 15,
+                              color: Colors.white70,
+                              fontWeight: FontWeight.w200),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: TextFormField(
+                          controller: _countController,
+                          keyboardType: TextInputType.number,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.white),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.white),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.white),
+                            ),
+                            //  labelText: 'Enter data',
+                            // labelStyle: TextStyle(color: Color.fromARGB(211, 65, 156, 230)),
+                            hintText: 'Enter data',
+                            hintStyle: TextStyle(color: Colors.white60),
+                            filled: true,
+                            fillColor: Colors.white,
+                          ),
+                          style: const TextStyle(
+                              color: Color.fromARGB(255, 49, 49, 49)),
+                          validator: (value) {
+                            if (value!.isEmpty) {
+                              return 'Please enter ${widget.title} data';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          children: [
+                            ElevatedButton(
+                              onPressed: () {
+                                if (_formKey.currentState!.validate()) {
+                                  if (_currentStep > 0) {
+                                    setState(() {
+                                      _currentStep -= 1;
+                                    });
+                                  }
+                                }
+                              },
+                              child: const Text('Back'),
+                            ),
+                            const SizedBox(width: 16),
+                            ElevatedButton(
+                              onPressed: () {
+                                if (_formKey.currentState!.validate()) {
+                                  setState(() {
+                                    isLoading = true;
+                                  });
+                                  saveData(_codeController.text,
+                                      _countController.text, selectedCategory);
+                                }
+                              },
+                              child: const Text('Submit'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                    //implementation for data views
+                    if (widget.title != "Vegetable") ...[
+                      const SizedBox(height: 10),
+                      Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: Container(
+                          height: 400,
+                          color: Colors.transparent,
+                          child: GetData(tokenExpired: tokenExpired),
+                        ),
+                      )
+                    ]
+                  ],
                 ),
               ),
             ),

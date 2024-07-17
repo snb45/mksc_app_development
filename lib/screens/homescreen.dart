@@ -84,23 +84,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                       SizedBox(width: 10),
-                      DropdownButton<String>(
-                        value: _selectedCamp,
-                        hint: Text("Select Camp"),
-                        items: <String>['bashay rift lodge', 'grumeti camp']
-                            .map((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(Utils.capitalize(value)),
-                          );
-                        }).toList(),
-                        onChanged: (newValue) {
-                          setState(() {
-                            _selectedCamp = newValue!;
-                          });
-                          setSelectedCamp(newValue!);
-                        },
-                      )
                     ],
                   )),
               Positioned(
