@@ -434,7 +434,7 @@ class _CampSelectionBottomSheetState extends State<CampSelectionBottomSheet> {
                       } else {
                         final camps = snapshot.data!;
                         return Container(
-                          height: 200,
+                          height: 240,
                           child: ListView.builder(
                             scrollDirection: Axis.vertical,
                             shrinkWrap: true,
@@ -527,7 +527,7 @@ class _CampSelectionBottomSheetState extends State<CampSelectionBottomSheet> {
                       );
                     } else {
                       return Container(
-                        height: 200,
+                        height: 100,
                         child: ListView.builder(
                           scrollDirection: Axis.vertical,
                           shrinkWrap: true,
