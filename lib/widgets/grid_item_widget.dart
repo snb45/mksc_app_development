@@ -26,6 +26,7 @@ class _GridItemWidgetState extends State<GridItemWidget> {
             widget.item.title == "Vegetable" ||
             widget.item.title == "Laundry") {
           showModalBottomSheet(
+            isScrollControlled: true,
             context: context,
             builder: (BuildContext context) {
               return CampSelectionBottomSheet(

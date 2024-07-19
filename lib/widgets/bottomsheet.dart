@@ -95,6 +95,7 @@ class _CampSelectionBottomSheetState extends State<CampSelectionBottomSheet> {
   @override
   Widget build(BuildContext context) {
     return Container(
+      height: MediaQuery.of(context).size.height * 0.9,
       decoration: const BoxDecoration(
         color: Color.fromRGBO(218, 242, 250, 1),
         borderRadius: BorderRadius.only(
@@ -102,8 +103,8 @@ class _CampSelectionBottomSheetState extends State<CampSelectionBottomSheet> {
           topRight: Radius.circular(25),
         ),
       ),
-      constraints: const BoxConstraints(
-        minHeight: 250,
+      constraints: BoxConstraints(
+        maxHeight: 500,
       ),
       child: Padding(
         padding: const EdgeInsets.only(top: 28.0),
@@ -566,24 +567,27 @@ class _CampSelectionBottomSheetState extends State<CampSelectionBottomSheet> {
                       return Text('Error: ${snapshot.error}');
                     } else {
                       final camps = snapshot.data!;
-                      return ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: camps.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          final campName = camps[index]['menuName'];
-                          final selectedIdMenu = camps[index]['id'];
-                          return ListTile(
-                            title: Text(campName),
-                            onTap: () {
-                              setState(() {
-                                _selectedMenu = campName;
-                                selectedMenuId = selectedIdMenu.toString();
-                                _menuExpanded = false;
-                              });
-                            },
-                            selected: _selectedCamp == campName,
-                          );
-                        },
+                      return SizedBox(
+                        height: 300,
+                        child: ListView.builder(
+                          itemCount: camps.length,
+                          padding: EdgeInsets.symmetric(vertical: 0),
+                          itemBuilder: (BuildContext context, int index) {
+                            final campName = camps[index]['menuName'];
+                            final selectedIdMenu = camps[index]['id'];
+                            return ListTile(
+                              title: Text(campName),
+                              onTap: () {
+                                setState(() {
+                                  _selectedMenu = campName;
+                                  selectedMenuId = selectedIdMenu.toString();
+                                  _menuExpanded = false;
+                                });
+                              },
+                              selected: _selectedCamp == campName,
+                            );
+                          },
+                        ),
                       );
                     }
                   },
