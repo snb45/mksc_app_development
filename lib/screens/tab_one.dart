@@ -15,11 +15,14 @@ class MenuTab1 extends StatefulWidget {
   State<MenuTab1> createState() => _MenuTab1State();
 }
 
-class _MenuTab1State extends State<MenuTab1> {
+class _MenuTab1State extends State<MenuTab1>  with AutomaticKeepAliveClientMixin {
   final service = Services();
   String? selectedDish;
   int selectedPortion = 1;
   List<dynamic> dishNames = [];
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -43,7 +46,7 @@ class _MenuTab1State extends State<MenuTab1> {
 
   Future<void> getUpdatedMenuDetails_(String selectedID) async {
     final menuModel = Provider.of<MenuModel>(context, listen: false);
-    final menus     = await service.getMenuByDishes(selectedID);
+    final menus = await service.getMenuByDishes(selectedID);
     menuModel.setData(menus);
     setState(() {
       dishNames = menus["otherDishesFromSelectedMenu"];
@@ -58,6 +61,7 @@ class _MenuTab1State extends State<MenuTab1> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final menuModel = Provider.of<MenuModel>(context);
     final data = menuModel.data;
     final portions = data["portions"] as List<dynamic>? ?? [];
@@ -318,37 +322,36 @@ class _MenuTab1State extends State<MenuTab1> {
                   children: [
                     TableCell(
                       child: Center(
-                        child: Column(
-                          children: [
-                            Text(
-                                 portion['productName'],
+                          child: Column(
+                        children: [
+                          Text(
+                            portion['productName'],
                             style: const TextStyle(
                               color: Colors.black,
                             ),
                           ),
-                        if(portion['extraDetails'] != null)...[
-                          Text(
+                          if (portion['extraDetails'] != null) ...[
+                            Text(
                               '(${portion['extraDetails']})',
                               style: const TextStyle(
                                 color: Colors.orange,
                               ),
                             )
-                        ] 
-                          ],
-                        )
-                      ),
+                          ]
+                        ],
+                      )),
                     ),
                     TableCell(
                       child: Center(
                         child: portion['multiply'] == 1
                             ? Text(
-                          '${(double.parse(portion['unitNeeded'].replaceAll(',', '')) * selectedPortion).toStringAsFixed(2)} (${portion['unit'].replaceAll(',', '')})',
+                                '${(double.parse(portion['unitNeeded'].replaceAll(',', '')) * selectedPortion).toStringAsFixed(2)} (${portion['unit'].replaceAll(',', '')})',
                                 style: const TextStyle(
                                   color: Colors.black,
                                 ),
                               )
                             : Text(
-                          '${(double.parse(portion['unitNeeded'].replaceAll(',', ''))).toStringAsFixed(2)} (${portion['unit'].replaceAll(',', '')})',
+                                '${(double.parse(portion['unitNeeded'].replaceAll(',', ''))).toStringAsFixed(2)} (${portion['unit'].replaceAll(',', '')})',
                                 style: const TextStyle(
                                   color: Colors.black,
                                 ),

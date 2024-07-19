@@ -19,7 +19,6 @@ class _SecondTabState extends State<SecondTab> {
   @override
   void initState() {
     super.initState();
-    
   }
 
   @override
@@ -140,7 +139,8 @@ class _SecondTabState extends State<SecondTab> {
                     child: Html(
                       data: dish['recipe'],
                       style: {
-                        'body': Style(color: Color.fromARGB(255, 132, 130, 130)),
+                        'body':
+                            Style(color: Color.fromARGB(255, 132, 130, 130)),
                       },
                     ),
                   ),
@@ -186,7 +186,8 @@ class _SecondTabState extends State<SecondTab> {
                     child: Html(
                       data: dish['tableware'],
                       style: {
-                        'body': Style(color: Color.fromARGB(255, 132, 130, 130)),
+                        'body':
+                            Style(color: Color.fromARGB(255, 132, 130, 130)),
                       },
                     ),
                   ),
@@ -232,7 +233,8 @@ class _SecondTabState extends State<SecondTab> {
                     child: Html(
                       data: dish['utensils'],
                       style: {
-                        'body': Style(color: Color.fromARGB(255, 132, 130, 130)),
+                        'body':
+                            Style(color: Color.fromARGB(255, 132, 130, 130)),
                       },
                     ),
                   ),
