@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
@@ -27,6 +28,10 @@ class _VideoDialogState extends State<VideoDialog> {
     super.initState();
     _isLoading = true;
     getMenuDetails_();
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeRight,
+      DeviceOrientation.landscapeLeft,
+    ]);
   }
 
   Future<void> getMenuDetails_() async {
@@ -36,7 +41,6 @@ class _VideoDialogState extends State<VideoDialog> {
   }
 
   void updateVideoUrl(String? newUrl) {
-    print('menuurl:' + newUrl!);
     if (newUrl != null) {
       setState(() {
         _isLoading = false;
@@ -74,9 +78,19 @@ class _VideoDialogState extends State<VideoDialog> {
             _isLoading
                 ? CircularProgressIndicator()
                 : YoutubePlayer(
-                    controller: _youtubeController,
-                    showVideoProgressIndicator: true,
-                  ),
+  controller: _youtubeController,
+  showVideoProgressIndicator: true,
+  onReady: () {
+    _youtubeController.addListener(() {
+      if (!_youtubeController.value.isFullScreen) {
+        SystemChrome.setPreferredOrientations([
+          DeviceOrientation.portraitUp,
+          DeviceOrientation.portraitDown,
+        ]);
+      }
+    });
+  },
+),
           ],
         ),
       ),

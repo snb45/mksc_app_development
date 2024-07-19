@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mksc_mobile/modules/menu/video_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:mksc_mobile/screens/tab_one.dart';
 import 'package:mksc_mobile/screens/tab_two.dart';
@@ -123,13 +124,13 @@ class _MenuScreenState extends State<MenuScreen> {
 
                 return FloatingActionButton(
                   onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return VideoDialog(
-                          menuId: menuModel.menuID ?? '',
-                        );
-                      },
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => VideoScreen(
+                          menuId: menuModel.data['video'] ?? '',
+                        ),
+                      ),
                     );
                   },
                   backgroundColor: Colors.blue,

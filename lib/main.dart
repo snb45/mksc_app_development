@@ -20,12 +20,12 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => MenuModel()),
       ],
       child: MaterialApp(
-        title: 'MKSC DEV APP',
+        title: 'MKSC APP',
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
           useMaterial3: true,
         ),
-        initialRoute: '/', 
+        initialRoute: '/',
         routes: {
           '/': (context) => const HomeScreen(),
           '/getdata': (context) => const GetData(tokenExpired: false),
