@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:mksc_mobile/screens/homescreen.dart';
 import 'package:mksc_mobile/screens/viewuploadeddata.dart';
@@ -28,7 +29,10 @@ class MyApp extends StatelessWidget {
         initialRoute: '/',
         routes: {
           '/': (context) => const HomeScreen(),
-          '/getdata': (context) => const GetData(tokenExpired: false),
+          '/getdata': (context) => GetData(
+                tokenExpired: false,
+                date: DateFormat('yyyy-MM-dd').format(DateTime.now()),
+              ),
           '/menu': (context) => const MenuScreen(),
         },
       ),

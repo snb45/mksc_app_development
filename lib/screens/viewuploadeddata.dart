@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:intl/intl.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:mksc_mobile/screens/formdata.dart';
 import 'package:mksc_mobile/service/services.dart';
@@ -9,8 +10,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class GetData extends StatefulWidget {
   final bool tokenExpired;
+  final String date;
 
-  const GetData({Key? key, required this.tokenExpired}) : super(key: key);
+  const GetData({super.key, required this.tokenExpired, required this.date});
 
   @override
   State<GetData> createState() => _GetDataState();
@@ -24,14 +26,19 @@ class _GetDataState extends State<GetData> {
   @override
   void initState() {
     super.initState();
-    fetchData();
+    fetchData(widget.date);
   }
 
-  Future<void> fetchData() async {
+  Future<void> fetchData(date) async {
     print("widget.tokenExpired.............");
     print(widget.tokenExpired);
+    print("widget.date............. $date");
+    if (date == '') DateFormat('yyyy-MM-dd').format(DateTime.now());
     try {
-      final jsonData = await _service.getData('daydata');
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('token' ?? '');
+      final jsonData = await _service.getData('daydata', date, token!);
+      print('uploaddata $jsonData');
       setState(() {
         data = List<Map<String, dynamic>>.from(jsonData['data']);
       });
@@ -41,6 +48,7 @@ class _GetDataState extends State<GetData> {
   }
 
   Future<void> _showMyDialog(item) async {
+    String date = widget.date;
     print(item['number']);
     print(item);
     // Set the initial value of _dataController
@@ -126,7 +134,7 @@ class _GetDataState extends State<GetData> {
                 print(item['item']);
                 _service.editData(token!, newData, item['item'], item['id']);
                 Navigator.of(context).pop();
-                fetchData();
+                fetchData(date);
               },
             ),
           ],

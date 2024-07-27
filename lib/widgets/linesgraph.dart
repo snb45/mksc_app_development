@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import '../modals/chartdatamodal.dart';
 import '../service/services.dart';
@@ -26,8 +27,9 @@ class _LineGraphState extends State<LineGraph> {
   }
 
   Future<void> fetchData() async {
+    String today = DateFormat('yyyy-MM-dd').format(DateTime.now());
     try {
-      final jsonData = await _service.getData('chickendata');
+      final jsonData = await _service.getData('chickendata', today, "");
       setState(() {
         populationData = (jsonData['populationData'] as List)
             .map(
@@ -85,7 +87,7 @@ class _LineGraphState extends State<LineGraph> {
           SfCartesianChart(
             title: const ChartTitle(text: 'Daily Analysis'),
             primaryXAxis: const CategoryAxis(),
-            primaryYAxis:  const CategoryAxis(),
+            primaryYAxis: const CategoryAxis(),
             tooltipBehavior: TooltipBehavior(enable: true),
             series: <CartesianSeries<ChartData, String>>[
               ColumnSeries(
@@ -117,7 +119,7 @@ class _LineGraphState extends State<LineGraph> {
             title: const ChartTitle(text: 'Monthly Analysis'),
             primaryXAxis: const CategoryAxis(),
             legend: const Legend(isVisible: true),
-            primaryYAxis:  CategoryAxis(),
+            primaryYAxis: CategoryAxis(),
             tooltipBehavior: TooltipBehavior(enable: true),
             series: <CartesianSeries<ChartData, String>>[
               ColumnSeries(

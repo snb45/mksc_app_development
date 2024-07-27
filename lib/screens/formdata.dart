@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:intl/intl.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:mksc_mobile/screens/vegetable_screen.dart';
 import 'package:mksc_mobile/screens/viewuploadeddata.dart';
@@ -45,9 +46,13 @@ class _AddDataState extends State<AddData> {
   String selectedData = "All Data";
   bool isDropdownVisible = false;
 
-  Future<void> checkData() async {
+  Future<void> checkData(date) async {
+    if (date == '') date = DateFormat('yyyy-MM-dd').format(DateTime.now());
+
     try {
-      final jsonData = await _serv.getData('daydata');
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('token');
+      final jsonData = await _serv.getData('daydata', date, token!);
       setState(() {
         data = List<Map<String, dynamic>>.from(jsonData['data']);
         print("data ...................................");
@@ -64,7 +69,12 @@ class _AddDataState extends State<AddData> {
     });
   }
 
-  saveData(codeNo, dataCount, selectedCategory) async {
+  saveData(codeNo, dataCount, selectedCategory, date) async {
+    print(" saveData date: ${date}");
+
+    if (date == '') {
+      date = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    }
     String category = widget.title;
     int? data = int.tryParse(dataCount);
     String modifiedselectedCategory = selectedCategory.toLowerCase();
@@ -72,7 +82,7 @@ class _AddDataState extends State<AddData> {
     String? token = prefs.getString('token');
     if (modifiedselectedCategory != '' && dataCount != '') {
       _serv
-          .postData(token!, widget.title, data!, modifiedselectedCategory)
+          .postData(token!, widget.title, data!, modifiedselectedCategory, date)
           .then((result) {
         setState(() {
           isLoading = false;
@@ -147,7 +157,8 @@ class _AddDataState extends State<AddData> {
   void initState() {
     super.initState();
     checkTokenExpiry();
-    checkData();
+
+    checkData(DateFormat('yyyy-MM-dd').format(DateTime.now()));
   }
 
   Future<void> checkTokenExpiry() async {
@@ -233,7 +244,12 @@ class _AddDataState extends State<AddData> {
     return false;
   }
 
+  TextEditingController controller = TextEditingController();
+  TextEditingController editController = TextEditingController();
+  TextEditingController _dateController = TextEditingController();
+
   Widget build(BuildContext context) {
+    print("selected date: ${_dateController.text}");
     return Scaffold(
       backgroundColor: Colors.blue,
       appBar: AppBar(
@@ -378,6 +394,42 @@ class _AddDataState extends State<AddData> {
                     ],
 
                     if (_currentStep >= 1 && widget.title != "Vegetable") ...[
+                      Container(
+                          padding: EdgeInsets.only(left: 10, bottom: 10),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          width: MediaQuery.of(context).size.width * 0.5,
+                          child: TextField(
+                            controller: _dateController,
+                            readOnly: true,
+                            style: TextStyle(color: Colors.white),
+                            decoration: InputDecoration(
+                              labelText: 'Select Date',
+                              hintText: 'Select Date',
+                              labelStyle: TextStyle(color: Colors.white),
+                              prefixIcon: Icon(Icons.calendar_month,
+                                  color: Colors.white),
+                              enabledBorder: UnderlineInputBorder(
+                                borderSide: BorderSide(color: Colors.white),
+                              ),
+                            ),
+                            onTap: () async {
+                              DateTime? date = await showDatePicker(
+                                context: context,
+                                initialDate: DateTime.now(),
+                                firstDate: DateTime(1900),
+                                lastDate: DateTime(2100),
+                              );
+                              if (date != null) {
+                                setState(() {
+                                  _dateController.text =
+                                      DateFormat('yyyy-MM-dd').format(date);
+                                  checkData(_dateController.text);
+                                });
+                              }
+                            },
+                          )),
                       const SizedBox(height: 10),
                       const Padding(
                         padding: EdgeInsets.symmetric(horizontal: 8.0),
@@ -536,8 +588,11 @@ class _AddDataState extends State<AddData> {
                                   setState(() {
                                     isLoading = true;
                                   });
-                                  saveData(_codeController.text,
-                                      _countController.text, selectedCategory);
+                                  saveData(
+                                      _codeController.text,
+                                      _countController.text,
+                                      selectedCategory,
+                                      _dateController.text);
                                 }
                               },
                               child: const Text('Submit'),
@@ -546,6 +601,7 @@ class _AddDataState extends State<AddData> {
                         ),
                       ),
                     ],
+                    
                     //implementation for data views
                     if (widget.title != "Vegetable") ...[
                       const SizedBox(height: 10),
@@ -554,7 +610,11 @@ class _AddDataState extends State<AddData> {
                         child: Container(
                           height: 400,
                           color: Colors.transparent,
-                          child: GetData(tokenExpired: tokenExpired),
+                          child: GetData(
+                            key: Key(_dateController.text),
+                            tokenExpired: tokenExpired,
+                            date: _dateController.text,
+                          ),
                         ),
                       )
                     ]

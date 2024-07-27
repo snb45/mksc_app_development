@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
+import 'package:intl/intl.dart';
 import 'package:mksc_mobile/service/services.dart';
 import 'package:mksc_mobile/utils/utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -20,6 +21,13 @@ class _LaundryScreenState extends State<LaundryScreen> {
 
   TextEditingController controller = TextEditingController();
   TextEditingController editController = TextEditingController();
+  TextEditingController _dateController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,8 +64,43 @@ class _LaundryScreenState extends State<LaundryScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      width: MediaQuery.of(context).size.width * 0.35,
+                      child: TextField(
+                        controller: _dateController,
+                        readOnly: true,
+                        style: TextStyle(color: Colors.white),
+                        decoration: InputDecoration(
+                          labelText: 'Select Date',
+                          hintText: 'Select Date',
+                          labelStyle: TextStyle(color: Colors.white),
+                          prefixIcon:
+                              Icon(Icons.calendar_month, color: Colors.white),
+                          enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.white),
+                          ),
+                        ),
+                        onTap: () async {
+                          DateTime? date = await showDatePicker(
+                            context: context,
+                            initialDate: DateTime.now(),
+                            firstDate: DateTime(1900),
+                            lastDate: DateTime(2100),
+                          );
+                          if (date != null) {
+                            String? camp = await selectedCamp;
+                            setState(() {
+                              _dateController.text =
+                                  DateFormat('yyyy-MM-dd').format(date);
+                            });
+                          }
+                        },
+                      )),
                   const SizedBox(
-                    height: 50,
+                    height: 30,
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -75,7 +118,8 @@ class _LaundryScreenState extends State<LaundryScreen> {
                   FutureBuilder(
                     future: () async {
                       String? camp = await selectedCamp;
-                      return _serv.getLaundryTodayData(camp);
+                      return _serv.getLaundryDataByDate(
+                          _dateController.text, camp);
                     }(),
                     builder: (BuildContext context,
                         AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
@@ -95,10 +139,10 @@ class _LaundryScreenState extends State<LaundryScreen> {
                               return Text('Error: ${snapshot2.error}');
                             } else {
                               return Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
+                                mainAxisAlignment: MainAxisAlignment.start,
                                 children: snapshot2.data!.map((machineSize) {
                                   return Container(
+                                      margin: const EdgeInsets.all(5),
                                       width: 150,
                                       height: 50,
                                       child: ElevatedButton(
@@ -165,7 +209,9 @@ class _LaundryScreenState extends State<LaundryScreen> {
                                                             if (await _serv
                                                                 .storeLaundryData(
                                                                     numberOfCircles,
-                                                                    machineSize)) {
+                                                                    machineSize,
+                                                                    _dateController
+                                                                        .text)) {
                                                               Navigator.of(
                                                                       context)
                                                                   .pop();
@@ -215,7 +261,8 @@ class _LaundryScreenState extends State<LaundryScreen> {
                   FutureBuilder(
                     future: () async {
                       String? camp = await selectedCamp;
-                      return _serv.getLaundryTodayData(camp);
+                      return _serv.getLaundryDataByDate(
+                          _dateController.text, camp);
                     }(),
                     builder: (BuildContext context, AsyncSnapshot snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
@@ -249,7 +296,7 @@ class _LaundryScreenState extends State<LaundryScreen> {
                                             onPressed: () {
                                               Navigator.of(context).pop();
                                             },
-                                          ),  
+                                          ),
                                           TextButton(
                                             child: Text('Save'),
                                             onPressed: () async {
@@ -260,7 +307,8 @@ class _LaundryScreenState extends State<LaundryScreen> {
                                                   numberOfCircles,
                                                   snapshot.data[index]
                                                       ['machineType'],
-                                                  snapshot.data[index]['id'])) {
+                                                  snapshot.data[index]['id'],
+                                                  _dateController.text)) {
                                                 ScaffoldMessenger.of(context)
                                                     .showSnackBar(SnackBar(
                                                         content: Text(

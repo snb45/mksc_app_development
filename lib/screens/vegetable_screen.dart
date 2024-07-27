@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:intl/intl.dart';
 import 'package:mksc_mobile/service/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
@@ -24,7 +25,7 @@ class _VegetableScreenState extends State<VegetableScreen> {
   void initState() {
     super.initState();
     fetchData();
-    fetchAvailableData();
+    fetchAvailableData(DateFormat('yyyy-MM-dd').format(DateTime.now()));
   }
 
   Future<void> fetchData() async {
@@ -46,9 +47,12 @@ class _VegetableScreenState extends State<VegetableScreen> {
     }
   }
 
-  Future<void> fetchAvailableData() async {
+  Future<void> fetchAvailableData(date) async {
     try {
-      final jsonData = await _service.getAvailableVegetableList();
+      final vegetableToken = await SharedPreferences.getInstance();
+      final token = vegetableToken.getString('vegetabletoken');
+
+      final jsonData = await _service.getAvailableVegetableList(date, token);
       setState(() {
         todaydata = List<Map<String, dynamic>>.from(jsonData['data']);
         print("incoming data ...............${todaydata}");
@@ -206,13 +210,15 @@ class _VegetableScreenState extends State<VegetableScreen> {
                           }
 
                           final resp = await _service.postData(
+
                               token!,
                               widget.title,
                               enteredData,
-                              selectedname.toLowerCase());
+                              selectedname.toLowerCase(),
+                              _dateController.text);
                           if (resp) {
                             fetchData();
-                            fetchAvailableData();
+                            fetchAvailableData(_dateController.text);
                             Navigator.of(context).pop();
                             Fluttertoast.showToast(
                                 msg: "Successfully saved!",
@@ -343,15 +349,14 @@ class _VegetableScreenState extends State<VegetableScreen> {
                           }
 
                           final resp = await _service.editVegetableData(
-                            token!,
-                            widget.title,
-                            enteredData,
-                            selectedname.toLowerCase(),
-                            itemid
-                          );
+                              token!,
+                              widget.title,
+                              enteredData,
+                              selectedname.toLowerCase(),
+                              itemid);
                           if (resp) {
                             fetchData();
-                            fetchAvailableData();
+                            fetchAvailableData(_dateController.text);
                             Navigator.of(context).pop();
                             Fluttertoast.showToast(
                                 msg: "Successfully Updated!",
@@ -390,194 +395,246 @@ class _VegetableScreenState extends State<VegetableScreen> {
     );
   }
 
+  TextEditingController controller = TextEditingController();
+  TextEditingController editController = TextEditingController();
+  TextEditingController _dateController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: Stack(
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 120.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Container(
-                      width: MediaQuery.of(context).size.width,
-                      height: 60,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: Colors.blue,
-                      ),
-                      child: const Center(
-                        child: Text(
-                          "Welcome to the Vegetable Data Management",
-                          style: TextStyle(
-                              color: Colors.white, fontWeight: FontWeight.w300),
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+                padding: EdgeInsets.only(left: 30),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                width: MediaQuery.of(context).size.width * 0.5,
+                child: TextField(
+                  controller: _dateController,
+                  readOnly: true,
+                  style: TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    labelText: 'Select Date',
+                    hintText: 'Select Date',
+                    labelStyle: TextStyle(color: Colors.white),
+                    prefixIcon: Icon(Icons.calendar_month, color: Colors.white),
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white),
+                    ),
+                  ),
+                  onTap: () async {
+                    DateTime? date = await showDatePicker(
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate: DateTime(1900),
+                      lastDate: DateTime(2100),
+                    );
+                    if (date != null) {
+                      setState(() {
+                        _dateController.text =
+                            DateFormat('yyyy-MM-dd').format(date);
+                        fetchAvailableData(_dateController.text);
+                      });
+                    }
+                  },
+                )),
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 120.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Container(
+                        width: MediaQuery.of(context).size.width,
+                        height: 60,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: Colors.blue,
+                        ),
+                        child: const Center(
+                          child: Text(
+                            "Welcome to the Vegetable Data Management",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w300),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  if (isLoading)
-                    _buildCardShimmer()
-                  else if (data == null || data!.isEmpty)
-                    const Center(
-                      child: Text(
-                        'Please wait ....',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, color: Colors.grey),
-                      ),
-                    )
-                  else
-                    for (final item in data!)
-                      Padding(
-                        padding: const EdgeInsets.only(
-                            left: 10.0, right: 10, top: 7, bottom: 7),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            gradient: const LinearGradient(
-                              begin: Alignment.centerLeft,
-                              end: Alignment.centerRight,
-                              colors: [
-                                Colors.white,
-                                Color.fromARGB(255, 150, 193, 228),
-                              ],
-                            ),
-                          ),
-                          constraints: const BoxConstraints(minHeight: 150.0),
-                          width: MediaQuery.of(context).size.width,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child:
-                                    item["image"] != null && item["image"] != ""
-                                        ? Image.network(
-                                            item["image"]!,
-                                            width: 140,
-                                            height: 140,
-                                            errorBuilder:
-                                                (context, error, stackTrace) {
-                                              return Padding(
-                                                padding: const EdgeInsets.only(
-                                                    right: 70.0, left: 15),
-                                                child: Icon(
-                                                  Icons.image,
-                                                  size: 50,
-                                                  color: Colors.blue[300],
-                                                ),
-                                              );
-                                            },
-                                          )
-                                        : Padding(
-                                            padding: const EdgeInsets.only(
-                                                right: 70.0, left: 15),
-                                            child: Icon(
-                                              Icons.image,
-                                              size: 50,
-                                              color: Colors.blue[300],
-                                            ),
-                                          ),
+                    if (isLoading)
+                      _buildCardShimmer()
+                    else if (data == null || data!.isEmpty)
+                      const Center(
+                        child: Text(
+                          'Please wait ....',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, color: Colors.grey),
+                        ),
+                      )
+                    else
+                      for (final item in data!)
+                        Padding(
+                          padding: const EdgeInsets.only(
+                              left: 10.0, right: 10, top: 7, bottom: 7),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              gradient: const LinearGradient(
+                                begin: Alignment.centerLeft,
+                                end: Alignment.centerRight,
+                                colors: [
+                                  Colors.white,
+                                  Color.fromARGB(255, 150, 193, 228),
+                                ],
                               ),
-                              Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    item["name"] ?? 'Unknown',
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.w600),
-                                  ),
-                                  // const Text("Click to feed data"),
-                                  const SizedBox(height: 10),
-                                  Row(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      MaterialButton(
-                                        elevation: 0.5,
-                                        onPressed: () {
-                                          bool isDataAvailable = todaydata?.any(
-                                                  (element) =>
-                                                      element['item'] ==
-                                                      item['name']) ??
-                                              false;
-                                          if (isDataAvailable) {
-                                            _showEditModal(
-                                                " ${item["name"]}",
-                                                todaydata?.firstWhere(
-                                                    (element) =>
-                                                        element['item'] ==
-                                                        item['name'])['number'],
-                                                todaydata?.firstWhere(
-                                                    (element) =>
-                                                        element['item'] ==
-                                                        item['name'])['id']);
-                                          } else {
-                                            _showTwoStepModal(
-                                                "${item["name"]}");
-                                          }
-                                        },
-                                        color: todaydata?.any((element) =>
-                                                    element['item'] ==
-                                                    item['name']) ??
-                                                false
-                                            ? Colors.orange
-                                            : Colors.blue,
-                                        textColor: Colors.white,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(20),
+                            ),
+                            constraints: const BoxConstraints(minHeight: 150.0),
+                            width: MediaQuery.of(context).size.width,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: item["image"] != null &&
+                                          item["image"] != ""
+                                      ? Image.network(
+                                          item["image"]!,
+                                          width: 140,
+                                          height: 140,
+                                          errorBuilder:
+                                              (context, error, stackTrace) {
+                                            return Padding(
+                                              padding: const EdgeInsets.only(
+                                                  right: 70.0, left: 15),
+                                              child: Icon(
+                                                Icons.image,
+                                                size: 50,
+                                                color: Colors.blue[300],
+                                              ),
+                                            );
+                                          },
+                                        )
+                                      : Padding(
+                                          padding: const EdgeInsets.only(
+                                              right: 70.0, left: 15),
+                                          child: Icon(
+                                            Icons.image,
+                                            size: 50,
+                                            color: Colors.blue[300],
+                                          ),
                                         ),
-                                        child: Text(
-                                          todaydata?.any((element) =>
+                                ),
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      item["name"] ?? 'Unknown',
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.w600),
+                                    ),
+                                    // const Text("Click to feed data"),
+                                    const SizedBox(height: 10),
+                                    Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
+                                      children: [
+                                        MaterialButton(
+                                          elevation: 0.5,
+                                          onPressed: () {
+                                            bool isDataAvailable =
+                                                todaydata?.any((element) =>
+                                                        element['item'] ==
+                                                        item['name']) ??
+                                                    false;
+                                            if (isDataAvailable) {
+                                              _showEditModal(
+                                                  " ${item["name"]}",
+                                                  todaydata?.firstWhere(
+                                                          (element) =>
+                                                              element['item'] ==
+                                                              item['name'])[
+                                                      'number'],
+                                                  todaydata?.firstWhere(
+                                                      (element) =>
+                                                          element['item'] ==
+                                                          item['name'])['id']);
+                                            } else {
+                                              _showTwoStepModal(
+                                                  "${item["name"]}");
+                                            }
+                                          },
+                                          color: todaydata?.any((element) =>
                                                       element['item'] ==
                                                       item['name']) ??
                                                   false
-                                              ? "Edit Data"
-                                              : "Add Data",
-                                          style: const TextStyle(
-                                              fontWeight: FontWeight.w400),
-                                        ),
-                                      ),
-                                      if (todaydata?.any((element) =>
-                                              element['item'] ==
-                                              item['name']) ??
-                                          false)
-                                        Padding(
-                                          padding: const EdgeInsets.only(
-                                              left: 15.0, bottom: 4),
-                                          child: Container(
-                                            color: Colors.transparent,
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.all(8.0),
-                                              child: Text(
-                                                // Use the number value from the response
-                                                todaydata?.firstWhere(
-                                                    (element) =>
+                                              ? Colors.orange
+                                              : Colors.blue,
+                                          textColor: Colors.white,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(20),
+                                          ),
+                                          child: Text(
+                                            todaydata?.any((element) =>
                                                         element['item'] ==
-                                                        item['name'])['number'],
-                                                style: const TextStyle(
-                                                    fontWeight: FontWeight.w800,
-                                                    color: Colors.white),
+                                                        item['name']) ??
+                                                    false
+                                                ? "Edit Data"
+                                                : "Add Data",
+                                            style: const TextStyle(
+                                                fontWeight: FontWeight.w400),
+                                          ),
+                                        ),
+                                        if (todaydata?.any((element) =>
+                                                element['item'] ==
+                                                item['name']) ??
+                                            false)
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                                left: 15.0, bottom: 4),
+                                            child: Container(
+                                              color: Colors.transparent,
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(8.0),
+                                                child: Text(
+                                                  // Use the number value from the response
+                                                  todaydata?.firstWhere(
+                                                          (element) =>
+                                                              element['item'] ==
+                                                              item['name'])[
+                                                      'number'],
+                                                  style: const TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.w800,
+                                                      color: Colors.white),
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                        )
-                                    ],
-                                  )
-                                ],
-                              )
-                            ],
+                                          )
+                                      ],
+                                    )
+                                  ],
+                                )
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

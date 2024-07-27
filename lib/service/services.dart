@@ -18,7 +18,7 @@ class Services {
   final authUrl = 'https://development.mkscportal.co.tz/api/v2/auth/user';
   final chickenUrl = 'https://development.mkscportal.co.tz/api/v2/chickenHouse';
   final chickenToDayUrl =
-      'https://development.mkscportal.co.tz/api/v2/chicken/House/today/';
+      'https://development.mkscportal.co.tz/api/v2/chickenHouseDataDate';
   final alldataurl =
       'https://development.mkscportal.co.tz/api/v2/chickenHouse/all';
   final getchickendata =
@@ -34,7 +34,7 @@ class Services {
   final vegetableUrl =
       "https://development.mkscportal.co.tz/api/v2/vegetable-list";
   final availablevegetableUrl =
-      "https://development.mkscportal.co.tz/api/v2/vegetable-today";
+      "https://development.mkscportal.co.tz/api/v2/vegetableDataDate";
   final vegetabledataurl =
       "https://development.mkscportal.co.tz/api/v2/vegetable";
   final savevegetableUrl =
@@ -50,57 +50,59 @@ class Services {
       'https://development.mkscportal.co.tz/api/v2/laundryData/today';
   final String updateLaundryDataUrl =
       'https://development.mkscportal.co.tz/api/v2/laundryData/';
+  final String laundryDataDate =
+      'https://development.mkscportal.co.tz/api/v2/laundryDataDate';
 
-  Future<AuthResult> authenticateUser(BuildContext context, String category,
-      String password, int countNo, String modifiedselectedCategory) async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    print(category);
-    final headers = {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-    };
-    final payload = json.encode({
-      'email': "laundry@laundry.com",
-      'password': password,
-    });
-    try {
-      final response = await http.post(
-        Uri.parse(authUrl),
-        body: payload,
-        headers: headers,
-      );
-      final responseData = json.decode(response.body);
-      if (responseData['token'] != null) {
-        //SAVE DATA ON LOCAL STORAGE
-        String formattedTime = DateTime.now().toIso8601String();
-        await prefs.setString('token', responseData['token']);
-        await prefs.setString('currentTime', formattedTime);
-        print("token saved..................");
-        if (category == "Chicken House") {
-          bool dataSaved = await postData(responseData['token'], category,
-              countNo, modifiedselectedCategory);
-          if (dataSaved) {
-            return AuthResult(true, data: responseData['token']);
-          } else {
-            return AuthResult(false);
-          }
-        }
-      } else {
-        Fluttertoast.showToast(
-            msg: "Authentication failed!",
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 1,
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
-            fontSize: 16.0);
-      }
-    } catch (error) {
-      throw error;
-    }
+  // Future<AuthResult> authenticateUser(BuildContext context, String category,
+  //     String password, int countNo, String modifiedselectedCategory) async {
+  //   final SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   print(category);
+  //   final headers = {
+  //     'Accept': 'application/json',
+  //     'Content-Type': 'application/json',
+  //   };
+  //   final payload = json.encode({
+  //     'email': "laundry@laundry.com",
+  //     'password': password,
+  //   });
+  //   try {
+  //     final response = await http.post(
+  //       Uri.parse(authUrl),
+  //       body: payload,
+  //       headers: headers,
+  //     );
+  //     final responseData = json.decode(response.body);
+  //     if (responseData['token'] != null) {
+  //       //SAVE DATA ON LOCAL STORAGE
+  //       String formattedTime = DateTime.now().toIso8601String();
+  //       await prefs.setString('token', responseData['token']);
+  //       await prefs.setString('currentTime', formattedTime);
+  //       print("token saved..................");
+  //       if (category == "Chicken House") {
+  //         bool dataSaved = await postData(responseData['token'], category,
+  //             countNo, modifiedselectedCategory,);
+  //         if (dataSaved) {
+  //           return AuthResult(true, data: responseData['token']);
+  //         } else {
+  //           return AuthResult(false);
+  //         }
+  //       }
+  //     } else {
+  //       Fluttertoast.showToast(
+  //           msg: "Authentication failed!",
+  //           toastLength: Toast.LENGTH_SHORT,
+  //           gravity: ToastGravity.BOTTOM,
+  //           timeInSecForIosWeb: 1,
+  //           backgroundColor: Colors.red,
+  //           textColor: Colors.white,
+  //           fontSize: 16.0);
+  //     }
+  //   } catch (error) {
+  //     throw error;
+  //   }
 
-    return AuthResult(false);
-  }
+  //   return AuthResult(false);
+  // }
 
   Future<bool> login(String password, String module) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -141,14 +143,18 @@ class Services {
     }
   }
 
-  Future<bool> postData(
-      String token, String name, int countnum, modifiedselectedCategory) async {
+  Future<bool> postData(String token, String name, int countnum,
+      modifiedselectedCategory, String date) async {
     final headers = {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
     };
-    final payload = json.encode(
-        {'item': modifiedselectedCategory, 'token': token, 'number': countnum});
+    final payload = json.encode({
+      'item': modifiedselectedCategory,
+      'token': token,
+      'number': countnum,
+      'date': date
+    });
     print("payload sent ................");
     print(payload);
     try {
@@ -220,21 +226,25 @@ class Services {
     }
   }
 
-  Future<Map<String, dynamic>> getData(String page) async {
+  Future<Map<String, dynamic>> getData(
+      String page, String date, String token) async {
+    print("page is $page, ");
     final headers = {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
     };
     try {
-      final response = await http.get(
+      final response = await http.post(
         Uri.parse(page == 'daydata'
             ? chickenToDayUrl
             : page == 'chickendata'
                 ? getchickendata
                 : alldataurl),
         headers: headers,
+        body: json.encode({'date': date, 'token': token}),
       );
 
+      print(response.body);
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
         return responseData;
@@ -352,8 +362,11 @@ class Services {
     }
   }
 
-  getAvailableVegetableList() async {
-    final response = await http.get(Uri.parse('$availablevegetableUrl'));
+  getAvailableVegetableList(date, token) async {
+    final response = await http.post(Uri.parse('$availablevegetableUrl'), body: {
+      'date': date,
+      'token': token,
+    });
     print(response.statusCode);
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = jsonDecode(response.body);
@@ -440,7 +453,8 @@ class Services {
     }
   }
 
-  Future<bool> storeLaundryData(int? circle, String machineType) async {
+  Future<bool> storeLaundryData(
+      int? circle, String machineType, String date) async {
     var url = Uri.parse(storeLaundryDataUrl);
     var camp = await getSelectedCampPreference();
     var token = await getSharedString('token');
@@ -455,7 +469,8 @@ class Services {
         'camp': camp,
         'circle': circle,
         'machineType': machineType,
-        'token': token
+        'token': token,
+        'date': date
       }),
     );
     print(response.body);
@@ -469,7 +484,7 @@ class Services {
   }
 
   Future<bool> updateLaundryData(
-      int? circle, String machineType, int? id) async {
+      int? circle, String machineType, int? id, String date) async {
     var url = Uri.parse(updateLaundryDataUrl + id.toString());
     var camp = await getSelectedCampPreference();
     var token = await getSharedString(Constants.laundrytoken);
@@ -484,7 +499,8 @@ class Services {
         'camp': camp,
         'circle': circle,
         'machineType': machineType,
-        'token': token
+        'token': token,
+        'date': date
       }),
     );
     print(response.body);
@@ -526,6 +542,36 @@ class Services {
 
     if (response.statusCode == 200) {
       List<dynamic> data = jsonDecode(response.body)['data'];
+      List<Map<String, dynamic>> result = [];
+      for (var item in data) {
+        result.add({
+          'machineType': item['machineType'],
+          'circle': item['circle'],
+          'id': item['id']
+        });
+      }
+      return result;
+    } else {
+      print('Request failed with status laundry: ${response.statusCode}.');
+      return [];
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getLaundryDataByDate(
+      String? date, String? campType) async {
+    var url = Uri.parse(laundryDataDate);
+
+    var response = await http.post(
+      url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{'camp': campType!, 'date': date!}),
+    );
+
+    if (response.statusCode == 200) {
+      List<dynamic> data = jsonDecode(response.body)['data'];
+      print(data.toString());
       List<Map<String, dynamic>> result = [];
       for (var item in data) {
         result.add({
